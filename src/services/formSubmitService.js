@@ -1,10 +1,10 @@
-const { cleanText } = require('../utils/textCleaner');
-const { splitTextSmart } = require('../utils/splitText');
+const { cleanText } = require('./textCleaner');
+const { splitTextSmart } = require('./splitText');
+const { getNextConfessionNo } = require('./confessionCounter');
 const { generateSlidesImages } = require('./slidesService');
 const { uploadImagesToDrive } = require('./driveService');
 const { sendTelegram } = require('./telegramService');
 const { buildCaption } = require('./captionService');
-const { getNextConfessionNo } = require('../utils/confessionCounter');
 
 async function processFormSubmit(data) {
   let raw = data.confession || '';
@@ -17,13 +17,13 @@ async function processFormSubmit(data) {
 
   const confessionNo = await getNextConfessionNo();
 
-  const parts = splitTextSmart(text, 300);
+  const parts = splitTextSmart(text, 665);
 
   const imageBuffers = await generateSlidesImages(parts, confessionNo);
 
   const driveUrls = await uploadImagesToDrive(imageBuffers, confessionNo);
 
-  const caption = buildCaption(text, confessionNo);
+  const caption = buildCaption(`Confession #${confessionNo}`, confessionNo);
 
   await sendTelegram(driveUrls, caption, confessionNo);
 

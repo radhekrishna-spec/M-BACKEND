@@ -1,16 +1,18 @@
+require("dotenv").config();
 const express = require('express');
-const dotenv = require('dotenv');
-const submitRoutes = require('./routes/submitRoutes');
+const { startWorkers } = require('./workers');
 
-dotenv.config();
+
+const submitRoutes = require('./routes/submitRoutes');
 
 const app = express();
 
 app.use(express.json());
-app.use('/api', submitRoutes);
 
-const PORT = process.env.PORT || 5000;
+app.use('/', submitRoutes);
 
-app.listen(PORT, () => {
-  console.log(`Server running on ${PORT}`);
+startWorkers();
+
+app.listen(3000, () => {
+  console.log('server running on 3000');
 });

@@ -1,6 +1,10 @@
 ```gitignore
 # Dependencies
 node_modules/
+.env
+.env.*
+service-account.json
+oauth-client.json
 
 # Environment files
 .env

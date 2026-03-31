@@ -1,8 +1,6 @@
-const fs = require('fs');
-const path = require('path');
 const { createCanvas } = require('canvas');
 
-async function generateConfessionImage(id, text) {
+async function createSlidePNG(text, confessionNo, partNo) {
   const width = 1080;
   const height = 1350;
 
@@ -13,54 +11,53 @@ async function generateConfessionImage(id, text) {
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, width, height);
 
-  // heading
+  // title
   ctx.fillStyle = '#000000';
-  ctx.font = 'bold 48px Arial';
-  ctx.fillText(`Confession #${id}`, 80, 100);
+  ctx.font = 'bold 42px Arial';
+  ctx.textAlign = 'center';
 
-  // footer watermark
-  ctx.font = '28px Arial';
-  ctx.fillText('@miet_k_dilwale_confession_wale', 80, 1280);
+  ctx.fillText(`Confession #${confessionNo}`, width / 2, 80);
 
   // confession text
-  ctx.font = '42px Arial';
-  wrapText(ctx, text, 80, 220, 900, 60);
+  ctx.font = '36px Arial';
+  ctx.textAlign = 'center';
 
-  const filePath = path.join(
-    process.cwd(),
-    'generated',
-    `confession_${id}.png`,
-  );
+  const lines = wrapText(ctx, text, 850);
 
-  if (!fs.existsSync(path.join(process.cwd(), 'generated'))) {
-    fs.mkdirSync(path.join(process.cwd(), 'generated'));
+  let y = 220;
+
+  for (const line of lines) {
+    ctx.fillText(line, width / 2, y);
+    y += 55;
   }
 
-  fs.writeFileSync(filePath, canvas.toBuffer('image/png'));
+  // footer
+  ctx.font = '28px Arial';
+  ctx.fillText(`Part ${partNo}`, width / 2, height - 60);
 
-  return filePath;
+  return canvas.toBuffer('image/png');
 }
 
-function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+function wrapText(ctx, text, maxWidth) {
   const words = text.split(' ');
+  const lines = [];
   let line = '';
 
-  for (let i = 0; i < words.length; i++) {
-    const testLine = line + words[i] + ' ';
-    const metrics = ctx.measureText(testLine);
+  for (const word of words) {
+    const testLine = line + word + ' ';
+    const width = ctx.measureText(testLine).width;
 
-    if (metrics.width > maxWidth && i > 0) {
-      ctx.fillText(line, x, y);
-      line = words[i] + ' ';
-      y += lineHeight;
+    if (width > maxWidth && line !== '') {
+      lines.push(line.trim());
+      line = word + ' ';
     } else {
       line = testLine;
     }
   }
 
-  ctx.fillText(line, x, y);
+  lines.push(line.trim());
+
+  return lines;
 }
 
-module.exports = {
-  generateConfessionImage,
-};
+module.exports = { createSlidePNG };

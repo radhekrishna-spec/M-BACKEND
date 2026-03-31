@@ -1,12 +1,9 @@
-const { startTelegramPoller } = require('./telegramPoller');
-const { startCommandPoller } = require('./commandPoller');
 const { startEditQueueWorker } = require('./editQueueWorker');
 const { startSchedulerWorker } = require('./schedulerWorker');
 
-function startAllWorkers(){
-  startTelegramPoller();
-  startCommandPoller();
+function startWorkers() {
   startEditQueueWorker();
   startSchedulerWorker();
 }
-module.exports={ startAllWorkers };
+
+module.exports = { startWorkers };

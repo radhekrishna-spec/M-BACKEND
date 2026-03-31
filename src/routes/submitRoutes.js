@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+
 const { processFormSubmit } = require('../services/formSubmitService');
 
 router.post('/submit', async (req, res) => {
@@ -8,7 +9,7 @@ router.post('/submit', async (req, res) => {
 
     res.json({
       success: true,
-      confessionNo: result.confessionNo,
+      ...result,
     });
   } catch (err) {
     res.status(500).json({
