@@ -1,6 +1,6 @@
 const axios = require('axios');
 const { google } = require('googleapis');
-const { autoFitTextConfig } = require('./autoFitTextConfig');
+const { autoFitTextConfig } = require('./slidesService');
 const client_id = process.env.GOOGLE_CLIENT_ID;
 const client_secret = process.env.GOOGLE_CLIENT_SECRET;
 const redirect_uri = process.env.GOOGLE_REDIRECT_URI;
