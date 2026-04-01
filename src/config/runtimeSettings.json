@@ -1,0 +1,10 @@
+{
+  "spamFilter": false,
+  "duplicateCheck": false,
+  "grammarFix": true,
+  "censor": true,
+  "toxicity": true,
+  "split": true,
+  "telegram": true,
+  "instagram": false
+}

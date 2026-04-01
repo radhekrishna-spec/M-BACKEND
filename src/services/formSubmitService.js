@@ -2,6 +2,8 @@ const { cleanText } = require('./textCleaner');
 const { splitTextSmart } = require('./splitText');
 const { getNextConfessionNo } = require('./confessionCounter');
 const { generateSlidesImages } = require('./slidesService');
+const { getSettings } = require('./settingsService');
+
 const { uploadImagesToDrive } = require('./driveService');
 const { sendTelegram } = require('./telegramService');
 const {
@@ -13,11 +15,11 @@ const {
 } = require('./captionService');
 
 const store = require('../store');
-
 async function processFormSubmit(data) {
   const startTime = Date.now();
 
   try {
+    const settings = getSettings();
     let raw = data?.confession || '';
 
     // EXACT APP SCRIPT CLEAN FLOW
@@ -28,15 +30,17 @@ async function processFormSubmit(data) {
     }
 
     // duplicate text block (30 sec)
-    const lastText = store.get('LAST_PROCESSED_TEXT');
-    const lastTime = store.get('LAST_PROCESSED_TIME');
+    if (settings.duplicateCheck) {
+      const lastText = store.get('LAST_PROCESSED_TEXT');
+      const lastTime = store.get('LAST_PROCESSED_TIME');
 
-    if (lastText === text && lastTime && Date.now() - lastTime < 30000) {
-      throw new Error('Duplicate confession blocked');
+      if (lastText === text && lastTime && Date.now() - lastTime < 30000) {
+        throw new Error('Duplicate confession blocked');
+      }
+
+      store.set('LAST_PROCESSED_TEXT', text);
+      store.set('LAST_PROCESSED_TIME', Date.now());
     }
-
-    store.set('LAST_PROCESSED_TEXT', text);
-    store.set('LAST_PROCESSED_TIME', Date.now());
 
     // SAME AS APP SCRIPT
     const confessionNo = await getNextConfessionNo();
@@ -44,7 +48,7 @@ async function processFormSubmit(data) {
     console.log(`🚀 STARTING CONFESSION #${confessionNo}`);
 
     // split exact
-    const parts = splitTextSmart(text, 665);
+    const parts = settings.autoSplitParts ? splitTextSmart(text, 665) : [text];
 
     // image generation exact
     const imageBuffers = await generateSlidesImages(parts, confessionNo);
@@ -94,7 +98,9 @@ async function processFormSubmit(data) {
     store.set(`processing_time_${confessionNo}`, Date.now() - startTime);
 
     // EXACT TELEGRAM FLOW
-    await sendTelegram(driveUrls, caption, confessionNo);
+    if (settings.telegramPreview) {
+      await sendTelegram(driveUrls, caption, confessionNo);
+    }
 
     console.log(
       `✅ CONFESSION #${confessionNo} DONE in ${Date.now() - startTime}ms`,

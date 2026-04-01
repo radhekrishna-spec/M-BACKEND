@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
-
+const { getSettings } = require('../services/settingsService');
 const store = require('../store');
 const { processFormSubmit } = require('../services/formSubmitService');
-
+const settings = getSettings();
 // health test route
 router.get('/test', (req, res) => {
   return res.status(200).json({

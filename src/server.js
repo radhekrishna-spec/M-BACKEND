@@ -9,6 +9,7 @@ const fs = require('fs');
 const path = require('path');
 
 const submitRoutes = require('./routes/submitRoutes');
+const settingsRoutes = require('./routes/settingsRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -44,6 +45,7 @@ app.get('/health', (req, res) => {
 });
 
 app.use('/', submitRoutes);
+app.use('/api', settingsRoutes);
 
 // error handler
 app.use((err, req, res, next) => {
