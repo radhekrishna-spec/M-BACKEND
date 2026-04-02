@@ -21,12 +21,13 @@ async function confirmEdit(chatId, confessionNo, text) {
       `🚀 Processing edit for #${confessionNo}`,
     );
 
-    await processEditQueue();
+    // await processEditQueue();
 
-    await sendTelegramMessage(
-      chatId,
-      `✅ Edited confession #${confessionNo} completed`,
-    );
+    
+
+    const tgMsgId = store.get(`telegram_msg_${confessionNo}`);
+
+    await updateTelegramButtons(chatId, tgMsgId, 'approved', confessionNo);
 
     store.delete('awaiting_edit_input');
     store.delete('editing_active');

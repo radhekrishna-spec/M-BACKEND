@@ -116,6 +116,19 @@ async function pollTelegramUpdates() {
           await approveConfession(chatId, messageId, id);
 
           await answerCallback(cbId, 'Approved ✅');
+        } else if (data.startsWith('stopedit_')) {
+          const id = data.replace('stopedit_', '');
+
+          store.delete('awaiting_edit_input');
+          store.delete('editing_active');
+          store.delete('editing_chat');
+          store.delete('editing_time');
+
+          const tgMsgId = store.get(`telegram_msg_${id}`);
+
+          await updateTelegramButtons(chatId, tgMsgId, 'approved', id);
+
+          await answerCallback(cbId, 'Editing stopped ❌');
         } else if (data.startsWith('reject_')) {
           const id = data.replace('reject_', '');
 
