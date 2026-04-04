@@ -1,5 +1,8 @@
 require('dotenv').config();
 
+const connectDB = require('./config/db');
+const confessionRoutes = require('./routes/confessionRoutes');
+
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -22,6 +25,19 @@ if (!fs.existsSync(logsDir)) {
 
 const accessLogStream = fs.createWriteStream(path.join(logsDir, 'access.log'), {
   flags: 'a',
+});
+
+connectDB();
+
+module.exports = connectDB;
+
+app.use(cors());
+app.use(express.json());
+
+app.use('/api/confessions', confessionRoutes);
+
+app.listen(process.env.PORT, () => {
+  console.log('Server running');
 });
 
 // middlewares

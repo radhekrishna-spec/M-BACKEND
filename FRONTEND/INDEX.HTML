@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Anonymous Confession</title>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #ede7f6;
+        margin: 0;
+        padding: 30px;
+      }
+      .container {
+        max-width: 700px;
+        margin: auto;
+      }
+      .card {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      }
+      h1 {
+        color: #5e35b1;
+      }
+      textarea,
+      input {
+        width: 100%;
+        padding: 14px;
+        margin-top: 10px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 15px;
+      }
+      .radio-group label {
+        display: block;
+        margin: 12px 0;
+      }
+      button {
+        width: 100%;
+        padding: 15px;
+        border: none;
+        border-radius: 8px;
+        background: #673ab7;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+      }
+      button:hover {
+        opacity: 0.95;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="card">
+        <h1>Anonymous Confession 💌</h1>
+        <p>
+          This is a safe space to share your feelings anonymously.<br />
+          No judgement. No identity reveal.<br />
+          Speak your heart freely.
+        </p>
+      </div>
+
+      <div class="card">
+        <label>Say it here… *</label>
+        <textarea id="confession" rows="6"></textarea>
+      </div>
+
+      <div class="card">
+        <label>Optional Nickname</label>
+        <input type="text" id="nickname" placeholder="Anonymous" />
+      </div>
+
+      <div class="card">
+        <label>Your Mood Right Now?</label>
+        <div class="radio-group">
+          <label
+            ><input type="radio" name="mood" value="Happy 😊" /> Happy 😊</label
+          >
+          <label
+            ><input type="radio" name="mood" value="Confused 😔" /> Confused
+            😔</label
+          >
+          <label
+            ><input type="radio" name="mood" value="Broken 💔" /> Broken
+            💔</label
+          >
+          <label
+            ><input type="radio" name="mood" value="In Love ❤️" /> In Love
+            ❤️</label
+          >
+          <label
+            ><input type="radio" name="mood" value="Regret 😞" /> Regret
+            😞</label
+          >
+          <label
+            ><input type="radio" name="mood" value="Sad 😓" /> Sad 😓</label
+          >
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Final Step</h3>
+        <p>
+          Please avoid duplicate confessions.<br />
+          Respectful content only.<br />
+          Thank you for sharing 🖤
+        </p>
+
+        <button onclick="payAndSubmit()">Pay ₹2 & Submit</button>
+      </div>
+    </div>
+
+    <script>
+      async function submitConfession() {
+        const confession = document.getElementById('confession').value.trim();
+        const nickname =
+          document.getElementById('nickname').value.trim() || 'Anonymous';
+        const mood =
+          document.querySelector('input[name="mood"]:checked')?.value ||
+          'Not selected';
+
+        if (!confession) {
+          alert('Please write your confession');
+          return;
+        }
+
+        const finalText = `
+Confession:
+${confession}
+
+Nickname:
+${nickname}
+
+Mood:
+${mood}
+`;
+
+        const response = await fetch('https://YOUR_RENDER_URL/submit', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            confession: finalText,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          alert('Confession submitted successfully 💌');
+          location.reload();
+        } else {
+          alert(data.error || 'Submission failed');
+        }
+      }
+
+      function payAndSubmit() {
+        const options = {
+          key: 'YOUR_RAZORPAY_KEY',
+          amount: 200,
+          currency: 'INR',
+          name: 'Anonymous Confession',
+          description: 'Submission Fee',
+          handler: function () {
+            submitConfession();
+          },
+        };
+
+        const rzp = new Razorpay(options);
+        rzp.open();
+      }
+    </script>
+  </body>
+</html>
