@@ -13,6 +13,10 @@ import {
   Palette,
 } from 'lucide-react';
 
+const API_BASE = import.meta.env.DEV
+  ? 'http://localhost:3000'
+  : 'https://confession-saas-node-v7-webhookless-max.onrender.com';
+
 function ConfessionNoControl() {
   const [number, setNumber] = useState('');
 
@@ -31,24 +35,49 @@ function ConfessionNoControl() {
   };
 
   return (
-    <div style={{ marginTop: '20px' }}>
-      <h3>Set Confession Number</h3>
+    <div className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-md p-5 shadow-xl">
+      <h3 className="font-semibold mb-4">Set Confession Number</h3>
 
       <input
         type="number"
         value={number}
         onChange={(e) => setNumber(e.target.value)}
         placeholder="Enter number"
+        className="w-full border border-white/10 bg-white/5 rounded-2xl p-3 text-white placeholder:text-gray-400 mb-3 outline-none"
       />
 
-      <button onClick={updateNumber}>Update</button>
+      <div className="grid grid-cols-3 gap-2 mb-3">
+        <button
+          onClick={() => setNumber((prev) => Number(prev || 0) + 1)}
+          className="rounded-2xl border border-white/10 p-2 hover:bg-white/10"
+        >
+          +1
+        </button>
+
+        <button
+          onClick={() => setNumber((prev) => Number(prev || 0) + 10)}
+          className="rounded-2xl border border-white/10 p-2 hover:bg-white/10"
+        >
+          +10
+        </button>
+
+        <button
+          onClick={() => setNumber((prev) => Number(prev || 0) + 100)}
+          className="rounded-2xl border border-white/10 p-2 hover:bg-white/10"
+        >
+          +100
+        </button>
+      </div>
+
+      <button
+        onClick={updateNumber}
+        className="w-full rounded-2xl bg-white text-black font-semibold p-3 hover:scale-[1.01] transition-all"
+      >
+        Update Number
+      </button>
     </div>
   );
 }
-
-const API_BASE = import.meta.env.DEV
-  ? 'http://localhost:3000'
-  : 'https://confession-saas-node-v7-webhookless-max.onrender.com';
 
 const defaultControls = [
   {
@@ -175,9 +204,7 @@ export default function BackendControlsDashboard() {
 
     await fetch(`${API_BASE}/api/settings`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
   };
@@ -252,47 +279,15 @@ export default function BackendControlsDashboard() {
                 ))}
               </div>
             </div>
-
-            <div className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-md shadow-xl p-5">
-              <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                <Bot size={20} /> AI + API Configuration
-              </h2>
-
-              <div className="grid md:grid-cols-2 gap-4">
-                <input
-                  className="border border-white/10 bg-white/5 rounded-2xl p-3 text-white placeholder:text-gray-400"
-                  placeholder="Spam threshold (0.8)"
-                />
-                <input
-                  className="border border-white/10 bg-white/5 rounded-2xl p-3 text-white placeholder:text-gray-400"
-                  placeholder="Duplicate similarity %"
-                />
-                <input
-                  className="border border-white/10 bg-white/5 rounded-2xl p-3 text-white placeholder:text-gray-400"
-                  placeholder="Blocked words list"
-                />
-                <input
-                  className="border border-white/10 bg-white/5 rounded-2xl p-3 text-white placeholder:text-gray-400"
-                  placeholder="Telegram channel ID"
-                />
-                <input
-                  className="border border-white/10 bg-white/5 rounded-2xl p-3 text-white placeholder:text-gray-400"
-                  placeholder="Instagram account ID"
-                />
-                <input
-                  className="border border-white/10 bg-white/5 rounded-2xl p-3 text-white placeholder:text-gray-400"
-                  placeholder="AI toxicity threshold"
-                />
-              </div>
-            </div>
           </div>
 
           <div className="space-y-6">
+            <ConfessionNoControl />
+
             <div className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-md p-5 shadow-xl">
               <h3 className="font-semibold mb-4 flex items-center gap-2">
                 <Database size={18} /> System Health
               </h3>
-
               <div className="space-y-3 text-sm text-gray-300">
                 <div className="flex justify-between">
                   <span>Node API</span>
@@ -304,26 +299,6 @@ export default function BackendControlsDashboard() {
                     Connected
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span>Google Slides</span>
-                  <span className="font-semibold text-green-400">Healthy</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Drive Upload</span>
-                  <span className="font-semibold text-green-400">Healthy</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-md p-5 shadow-xl">
-              <h3 className="font-semibold mb-4 flex items-center gap-2">
-                <AlertTriangle size={18} /> Moderation Queue
-              </h3>
-
-              <div className="space-y-3 text-sm text-gray-300">
-                <p>⚠ 3 confessions flagged for spam</p>
-                <p>⚠ 2 duplicate risks detected</p>
-                <p>✅ 11 approved today</p>
               </div>
             </div>
 
@@ -340,7 +315,6 @@ export default function BackendControlsDashboard() {
                 Change Accent Theme
               </button>
             </div>
-            <ConfessionNoControl />
           </div>
         </div>
       </div>
