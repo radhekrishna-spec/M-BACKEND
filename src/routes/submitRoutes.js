@@ -4,7 +4,7 @@ const Confession = require('../models/Confession');
 const Counter = require('../models/Counter');
 const { processFormSubmit } = require('../services/formSubmitService');
 const store = require('../store');
-const { moveFileToFolder } = require('../services/googleDriveService');
+const { moveFileToFolder } = require('../services/driveService');
 
 function getPostTimes(queueCount) {
   if (queueCount <= 3) return [9, 13, 21];
