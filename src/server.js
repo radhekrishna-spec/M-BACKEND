@@ -47,7 +47,7 @@ async function startServer() {
     //startWorkersSafely();
   });
 }
-
+startTelegramPoller();
 startServer();
 
 app.use(express.json());
