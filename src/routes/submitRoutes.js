@@ -5,6 +5,7 @@ const Counter = require('../models/Counter');
 const { processFormSubmit } = require('../services/formSubmitService');
 const store = require('../store');
 const { moveFileToFolder } = require('../services/driveService');
+const { google } = require('googleapis');
 
 function getPostTimes(queueCount) {
   if (queueCount <= 3) return [9, 13, 21];
@@ -109,7 +110,7 @@ router.post('/post-now', async (req, res) => {
 
     const auth = new google.auth.OAuth2(
       process.env.GOOGLE_CLIENT_ID,
-      process.env.GOOGLE_CLIENT_SECRET
+      process.env.GOOGLE_CLIENT_SECRET,
     );
 
     auth.setCredentials({
@@ -141,7 +142,7 @@ router.post('/post-now', async (req, res) => {
 
     await Confession.findOneAndUpdate(
       { confessionNo: id },
-      { status: 'posted' }
+      { status: 'posted' },
     );
 
     return res.status(200).json({
