@@ -10,7 +10,7 @@ const compression = require('compression');
 const morgan = require('morgan');
 const fs = require('fs');
 const path = require('path');
-const { startTelegramPoller } = require('./telegramBot');
+
 const submitRoutes = require('./routes/submitRoutes');
 const settingsRoutes = require('./routes/settingsRoutes');
 
@@ -44,12 +44,11 @@ async function startServer() {
 
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Server running on ${PORT}`);
-    //startWorkersSafely();
+    startWorkersSafely();
   });
 }
-//startTelegramPoller();
+
 startServer();
-startWorkersSafely();
 
 app.use(express.json());
 
