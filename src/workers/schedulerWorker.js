@@ -4,75 +4,81 @@ const { updateTelegramButtons } = require('../services/telegramUpdateService');
 
 const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
-// EXACT SAME TIME WINDOW LOGIC + SAFE
+// Dynamic timing based on approved queue count
+function getPostTimes(queueCount) {
+  if (queueCount <= 3) {
+    return [9, 13, 21];
+  }
+
+  if (queueCount <= 6) {
+    return [9, 12, 15, 17, 19, 22];
+  }
+
+  if (queueCount <= 10) {
+    return [9, 11, 13, 15, 17, 19, 21, 22];
+  }
+
+  return [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22];
+}
+
+// count approved queue
+function getApprovedQueueCount() {
+  const all = store.getAll() || {};
+  let count = 0;
+
+  for (const key in all) {
+    if (key.startsWith('state_') && all[key] === 'APPROVED') {
+      count++;
+    }
+  }
+
+  return count;
+}
+
+// new time based posting logic
 function shouldPostNow() {
-  const now = Date.now();
-  const nowDate = new Date();
+  const now = new Date();
+  const currentHour = now.getHours();
+  const currentMinute = now.getMinutes();
 
-  const lastPost = Number(store.get('LAST_POST_TIME') || 0);
-
-  if (!lastPost) {
-    store.set('LAST_POST_TIME', now);
-    return true;
-  }
-
-  const gap = now - lastPost;
-  const hour = nowDate.getHours();
-
-  let minGap;
-  let maxGap;
-
-  if (hour >= 0 && hour <= 6) {
-    minGap = 160 * 60 * 1000;
-    maxGap = 240 * 60 * 1000;
-  } else if (hour >= 7 && hour <= 11) {
-    minGap = 90 * 60 * 1000;
-    maxGap = 140 * 60 * 1000;
-  } else if (hour >= 12 && hour <= 18) {
-    minGap = 70 * 60 * 1000;
-    maxGap = 120 * 60 * 1000;
-  } else {
-    minGap = 80 * 60 * 1000;
-    maxGap = 130 * 60 * 1000;
-  }
-
-  const randomDelayMs = Math.floor(Math.random() * 10 * 60 * 1000);
-
-  if (gap < minGap + randomDelayMs) {
+  // only trigger in first 5 mins
+  if (currentMinute > 5) {
     return false;
   }
 
-  if (gap >= minGap && gap <= maxGap) {
-    const skipChance = Math.random();
+  const queueCount = getApprovedQueueCount();
 
-    if (skipChance < 0.25) {
-      return false;
-    }
-
-    store.set('LAST_POST_TIME', now);
-
-    return true;
+  if (!queueCount) {
+    return false;
   }
 
-  if (gap > maxGap) {
-    store.set('LAST_POST_TIME', now);
+  const postTimes = getPostTimes(queueCount);
 
+  const lastSlotKey = `LAST_POST_SLOT_${currentHour}`;
+  const todayKey = new Date().toDateString();
+
+  const alreadyPosted = store.get(lastSlotKey);
+
+  if (alreadyPosted === todayKey) {
+    return false;
+  }
+
+  if (postTimes.includes(currentHour)) {
+    store.set(lastSlotKey, todayKey);
     return true;
   }
 
   return false;
 }
 
-// EXACT SAME APPROVED FIND + FIFO
+// FIFO approved confession
 function getNextApprovedConfession() {
   const all = store.getAll() || {};
-
   const approved = [];
 
   for (const key in all) {
     if (key.startsWith('state_') && all[key] === 'APPROVED') {
       const id = key.replace('state_', '');
-
       approved.push(Number(id));
     }
   }
@@ -86,19 +92,17 @@ function getNextApprovedConfession() {
   return approved[0];
 }
 
-// EXACT SAME POST FLOW + DUP SAFE
+// post flow
 async function processApprovedQueue() {
   const confessionNo = getNextApprovedConfession();
 
   if (!confessionNo) return;
 
-  // prevent duplicate posting
   if (store.get(`posting_${confessionNo}`)) {
     return;
   }
 
   const images = store.get(`images_${confessionNo}`) || [];
-
   const caption = store.get(`caption_${confessionNo}`) || '';
 
   if (!images.length) {
@@ -108,13 +112,11 @@ async function processApprovedQueue() {
 
   try {
     store.set(`posting_${confessionNo}`, '1');
-
     store.set(`state_${confessionNo}`, 'POSTING');
 
     await postCarousel(images, caption);
 
     store.set(`state_${confessionNo}`, 'POSTED');
-
     store.set(`posted_time_${confessionNo}`, Date.now());
 
     const tgMsgId = store.get(`telegram_msg_${confessionNo}`);
@@ -124,14 +126,13 @@ async function processApprovedQueue() {
     console.log(`🚀 Posted confession #${confessionNo}`);
   } catch (error) {
     console.error('POST FAIL', error.message);
-
     store.set(`state_${confessionNo}`, 'FAILED');
   } finally {
     store.delete(`posting_${confessionNo}`);
   }
 }
 
-// EXACT SAME AUTO WORKER
+// worker
 function startSchedulerWorker() {
   console.log('Scheduler worker started...');
 
@@ -143,7 +144,7 @@ function startSchedulerWorker() {
     } catch (error) {
       console.error('SCHEDULER ERROR:', error.message);
     }
-  }, 60000); // every 1 min
+  }, 60000);
 }
 
 module.exports = {

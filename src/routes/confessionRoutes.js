@@ -1,20 +1,29 @@
 const express = require('express');
 const router = express.Router();
 const Confession = require('../models/Confession');
-const {
-  handleSubmit,
-  processFormSubmit,
-} = require('../services/formSubmitService');
+const Counter = require('../models/Counter');
+const { processFormSubmit } = require('../services/formSubmitService');
 
 router.post('/submit', async (req, res) => {
   try {
     const { message } = req.body;
 
+    console.log('STEP 1 request received');
+
+    // Persistent counter
+    const counter = await Counter.findOneAndUpdate(
+      { key: 'confessionNumber' },
+      { $inc: { seq: 1 } },
+      { new: true, upsert: true },
+    );
+
+    const confessionNo = counter.seq;
+
     const newConfession = new Confession({
       message,
+      confessionNo,
+      status: 'pending',
     });
-
-    console.log('STEP 1 request received');
 
     await newConfession.save();
     console.log('STEP 2 mongo saved');
@@ -22,19 +31,17 @@ router.post('/submit', async (req, res) => {
     const result = await processFormSubmit({
       confession: message,
     });
+
     console.log('STEP 3 process done');
 
     const queueAhead = await Confession.countDocuments({
       status: 'pending',
     });
 
-    const estimatedMinutes = queueAhead * 15;
-    const eta = new Date(Date.now() + estimatedMinutes * 60000);
-
     res.status(201).json({
       success: true,
-      confessionNo: result.confessionNo,
-      queueAhead: 7,
+      confessionNo,
+      queueAhead,
       estimatedPostTime: 'Today 8:30 PM',
       data: newConfession,
     });
