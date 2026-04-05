@@ -19,19 +19,36 @@ const API_BASE = import.meta.env.DEV
 
 function ConfessionNoControl() {
   const [number, setNumber] = useState('');
+  useEffect(() => {
+    fetch(`${API_BASE}/api/confession-no`)
+      .then((res) => res.json())
+      .then((data) => {
+        setNumber(data.confessionNo || '');
+      });
+  }, []);
 
   const updateNumber = async () => {
-    await fetch(`${API_BASE}/api/confession-no`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        confessionNo: number,
-      }),
-    });
+    try {
+      const res = await fetch(`${API_BASE}/api/confession-no`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          confessionNo: Number(number),
+        }),
+      });
 
-    alert('Confession number updated');
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Update failed');
+      }
+
+      alert(`Updated to #${data.confessionNo}`);
+    } catch (error) {
+      alert(error.message);
+    }
   };
 
   return (
