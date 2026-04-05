@@ -56,7 +56,7 @@ async function processEditQueue() {
     const tgMsgId = store.get(`telegram_msg_${job.id}`);
 
     // import whole module object
-    const telegramUpdateService = require('../services/telegramUpdateService');
+    const telegramUpdateService = require('../../../services/telegramUpdateService');
 
     // safe check
     if (
