@@ -114,7 +114,7 @@ async function moveFileToFolder(fileId, folderType) {
     fields: 'id, parents',
   });
 
-  console.log(`✅ File moved to ${folderType}`);
+  //console.log(`✅ File moved to ${folderType}`);
 }
 
 module.exports = {

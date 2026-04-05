@@ -31,7 +31,7 @@ async function createManualConfession(message) {
       confession: message.trim(),
     });
 
-    console.log(`✅ Confession #${confessionNo} sent to Telegram`);
+    //console.log(`✅ Confession #${confessionNo} sent to Telegram`);
 
     return {
       success: true,

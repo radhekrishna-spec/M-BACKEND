@@ -15,7 +15,7 @@ function breakDeadLocks() {
       const posted = store.get(`state_${id}`) === 'POSTED';
 
       if (!posted) {
-        console.log(`🔓 Breaking posting lock for #${id}`);
+        //console.log(`🔓 Breaking posting lock for #${id}`);
         store.delete(key);
       }
     }
@@ -25,7 +25,7 @@ function breakDeadLocks() {
       const queue = store.get('EDIT_QUEUE') || [];
 
       if (!queue.length) {
-        console.log('🔓 Clearing stuck EDIT_WORKING');
+        //console.log('🔓 Clearing stuck EDIT_WORKING');
         store.delete('EDIT_WORKING');
       }
     }
@@ -37,7 +37,7 @@ function breakDeadLocks() {
       const sent = store.get(`telegram_sent_${id}`);
 
       if (!sent) {
-        console.log(`🔓 Clearing TG lock for #${id}`);
+        //console.log(`🔓 Clearing TG lock for #${id}`);
         store.delete(key);
       }
     }
@@ -59,7 +59,7 @@ function healQueueSystem() {
         const images = store.get(`images_${id}`) || [];
 
         if (!images.length) {
-          console.log(`⚠️ Healing failed state #${id}`);
+          //console.log(`⚠️ Healing failed state #${id}`);
           store.set(`state_${id}`, 'FAILED');
         }
       }
@@ -111,7 +111,7 @@ async function restoreAllTelegramButtons() {
 
 // AUTO RECOVERY LOOP
 function startRecoveryWorker() {
-  console.log('Recovery worker started...');
+  //console.log('Recovery worker started...');
 
   setInterval(async () => {
     try {

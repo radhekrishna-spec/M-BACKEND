@@ -25,10 +25,10 @@ async function sendTelegram(images, caption, confessionNo, isEdit = false) {
     try {
       for (let i = 0; i < images.length; i += chunkSize) {
         const imageBuffer = images[i];
-        console.log('📦 TELEGRAM BUFFER SIZE:', imageBuffer.length);
-        console.log('🧪 PNG SIGNATURE:', imageBuffer.slice(0, 8));
+        //console.log('📦 TELEGRAM BUFFER SIZE:', imageBuffer.length);
+        //console.log('🧪 PNG SIGNATURE:', imageBuffer.slice(0, 8));
 
-        console.log(`📤 Sending image buffer ${i + 1} for Telegram`);
+        //console.log(`📤 Sending image buffer ${i + 1} for Telegram`);
 
         const form = new FormData();
 
@@ -70,7 +70,7 @@ async function sendTelegram(images, caption, confessionNo, isEdit = false) {
         },
       );
 
-      console.log('📨 Fallback text message sent');
+      //console.log('📨 Fallback text message sent');
     }
 
     // approval buttons always send
@@ -114,7 +114,7 @@ async function sendTelegram(images, caption, confessionNo, isEdit = false) {
     store.set(`telegram_media_msgs_${confessionNo}`, sentMessageIds);
     store.set(`telegram_sent_${confessionNo}`, 'yes');
 
-    console.log(`✅ Telegram sent for #${confessionNo}`);
+    //console.log(`✅ Telegram sent for #${confessionNo}`);
   } finally {
     store.delete(`telegram_sending_${confessionNo}`);
   }

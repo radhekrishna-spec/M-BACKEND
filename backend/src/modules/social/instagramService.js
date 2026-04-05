@@ -40,7 +40,7 @@ async function postCarousel(images, caption) {
   const children = [];
 
   for (const url of images) {
-    console.log('INSTAGRAM URL RECEIVED:', url);
+    //console.log('INSTAGRAM URL RECEIVED:', url);
 
     const res = await axios.post(
       `https://graph.facebook.com/v19.0/${IG_USER_ID}/media`,

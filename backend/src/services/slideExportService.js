@@ -14,7 +14,7 @@ async function exportSlideAsPNG(authClient, presentationId, slideId) {
 
   const contentType = response.headers['content-type'];
 
-  console.log('🧪 SLIDE EXPORT TYPE:', contentType);
+  //console.log('🧪 SLIDE EXPORT TYPE:', contentType);
 
   if (!contentType || !contentType.includes('image/png')) {
     throw new Error(`Invalid export type: ${contentType}`);
@@ -22,7 +22,7 @@ async function exportSlideAsPNG(authClient, presentationId, slideId) {
 
   const imageBuffer = Buffer.from(response.data);
 
-  console.log('📦 PNG SIZE:', imageBuffer.length);
+  //console.log('📦 PNG SIZE:', imageBuffer.length);
 
   return imageBuffer;
 }

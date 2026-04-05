@@ -11,7 +11,7 @@ let pollerStarted = false;
 
 function startWorkers() {
   if (pollerStarted) {
-    console.log('⚠️ Poller already running');
+    //console.log('⚠️ Poller already running');
     return;
   }
 

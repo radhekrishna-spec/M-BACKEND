@@ -44,7 +44,7 @@ router.post('/submit', async (req, res) => {
   try {
     const { message } = req.body;
 
-    console.log('STEP 1 request received');
+    //console.log('STEP 1 request received');
 
     // Persistent counter
     const counter = await Counter.findOneAndUpdate(
@@ -62,13 +62,13 @@ router.post('/submit', async (req, res) => {
     });
 
     await newConfession.save();
-    console.log('STEP 2 mongo saved');
+    //console.log('STEP 2 mongo saved');
 
     const result = await processFormSubmit({
       confession: message,
     });
 
-    console.log('STEP 3 process done');
+    //console.log('STEP 3 process done');
 
     const queueAhead = await Confession.countDocuments({
       status: 'PENDING',

@@ -53,7 +53,7 @@ async function answerCallback(cbId, text = 'Done ✅') {
 }
 
 async function pollTelegramUpdates() {
-  console.log('📡 polling with offset:', lastUpdateId + 1);
+  //console.log('📡 polling with offset:', lastUpdateId + 1);
   if (isPolling) return;
 
   isPolling = true;
@@ -72,13 +72,13 @@ async function pollTelegramUpdates() {
     const updates = res.data?.result || [];
 
     for (const update of updates) {
-      console.log('📩 FULL UPDATE:', JSON.stringify(update, null, 2));
+     // console.log('📩 FULL UPDATE:', JSON.stringify(update, null, 2));
 
       if (update.callback_query) {
-        console.log('🟢 CALLBACK RECEIVED');
-        console.log('🟢 DATA:', update.callback_query.data);
-        console.log('🟢 CHAT ID:', update.callback_query.message?.chat?.id);
-        console.log('🟢 MSG ID:', update.callback_query.message?.message_id);
+       // console.log('🟢 CALLBACK RECEIVED');
+       // console.log('🟢 DATA:', update.callback_query.data);
+       // console.log('🟢 CHAT ID:', update.callback_query.message?.chat?.id);
+        //console.log('🟢 MSG ID:', update.callback_query.message?.message_id);
       }
       lastUpdateId = update.update_id;
 
@@ -98,7 +98,7 @@ async function pollTelegramUpdates() {
           activeEditId &&
           String(editingChat) === String(chatId)
         ) {
-          console.log(`✏️ Edit text received for #${activeEditId}`);
+          //console.log(`✏️ Edit text received for #${activeEditId}`);
 
           await confirmEdit(chatId, activeEditId, text);
 
@@ -190,7 +190,7 @@ async function pollTelegramUpdates() {
     console.error('POLL ERROR:', err);
 
     if (error.response?.data?.error_code === 409) {
-      console.log('⚠️ Conflict detected, waiting before retry...');
+      //console.log('⚠️ Conflict detected, waiting before retry...');
       await new Promise((resolve) => setTimeout(resolve, 10000));
       return;
     }
@@ -203,17 +203,17 @@ let pollerStarted = false;
 
 
 function startTelegramPoller() {
-  console.log('🚀 startTelegramPoller called at:', new Date().toISOString());
+  //console.log('🚀 startTelegramPoller called at:', new Date().toISOString());
   console.trace('📍 POLLER START TRACE');
 
   if (pollerStarted) {
-    console.log('⚠️ Poller already started');
+    //console.log('⚠️ Poller already started');
     return;
   }
 
   pollerStarted = true;
 
-  console.log('✅ Telegram poller actually started');
+  //console.log('✅ Telegram poller actually started');
 
   const pollLoop = async () => {
     try {

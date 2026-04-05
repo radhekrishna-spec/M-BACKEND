@@ -4,19 +4,19 @@ const { processEditQueue } = require('../workers/editQueueWorker');
 
 async function approve(id) {
   store.set(`state_${id}`, 'APPROVED');
-  console.log(`✅ Approved #${id}`);
-  console.log(`📦 state_${id}:`, store.get(`state_${id}`));
+  //console.log(`✅ Approved #${id}`);
+  //console.log(`📦 state_${id}:`, store.get(`state_${id}`));
 }
 
 async function reject(id) {
   store.props[`state_${id}`] = 'REJECTED';
-  console.log(`Rejected #${id}`);
+  //console.log(`Rejected #${id}`);
 }
 
 async function startEdit(id) {
   store.props.editing_active = id;
   store.props.awaiting_edit_input = true;
-  console.log(`Editing started #${id}`);
+  //console.log(`Editing started #${id}`);
 }
 
 async function confirmEdit(id) {
@@ -33,7 +33,7 @@ async function confirmEdit(id) {
 
   delete store.props.editing_active;
 
-  console.log(`Edit confirmed #${id}`);
+  // console.log(`Edit confirmed #${id}`);
 }
 
 async function stopEdit(id) {
@@ -41,7 +41,7 @@ async function stopEdit(id) {
   delete store.props.awaiting_edit_input;
   delete store.props[`pending_edit_${id}`];
 
-  console.log(`Edit stopped #${id}`);
+  // console.log(`Edit stopped #${id}`);
 }
 
 module.exports = {

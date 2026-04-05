@@ -89,7 +89,7 @@ async function processEditQueue() {
 }
 // EXACT SAME AUTO WORKER
 function startEditQueueWorker() {
-  console.log('Edit queue worker started...');
+  //console.log('Edit queue worker started...');
 
   setInterval(processEditQueue, 3000);
 }

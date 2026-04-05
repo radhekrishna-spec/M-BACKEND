@@ -36,6 +36,10 @@ async function shouldPostNow() {
   const currentHour = now.getHours();
   const currentMinute = now.getMinutes();
 
+  console.log('⏰ SCHEDULER CHECK RUNNING');
+  console.log('🕒 CURRENT TIME:', new Date().toLocaleTimeString());
+  console.log('🕒 CURRENT MINUTE:', currentMinute);
+
   // only trigger in first 5 mins
   // if (currentMinute > 59) {
   //   return false;
@@ -78,14 +82,14 @@ async function getNextApprovedConfession() {
 
 // post flow
 async function processApprovedQueue() {
-  console.log('🧾 STORE DATA:', store.getAll());
+  //console.log('🧾 STORE DATA:', store.getAll());
 
   const confession = await getNextApprovedConfession();
 
-  console.log('🧾 NEXT APPROVED CONFESSION:', confession);
+  //console.log('🧾 NEXT APPROVED CONFESSION:', confession);
 
   if (!confession) {
-    console.log('❌ no approved confession');
+    //console.log('❌ no approved confession');
     return {
       success: false,
       message: 'No approved confession',
@@ -95,8 +99,8 @@ async function processApprovedQueue() {
   const images = confession.images || [];
   const caption = confession.caption || '';
 
-  console.log('🖼 images:', images);
-  console.log('📝 caption:', caption);
+  //console.log('🖼 images:', images);
+  //console.log('📝 caption:', caption);
 
   if (!confessionNo) {
     return {
@@ -116,8 +120,8 @@ async function processApprovedQueue() {
   try {
     store.set(`posting_${confessionNo}`, '1');
     await Confession.updateOne({ confessionNo }, { status: 'POSTING' });
-    console.log('📤 INSTAGRAM IMAGE URL:', images[0]);
-    console.log('📝 INSTAGRAM CAPTION:', caption);
+    // console.log('📤 INSTAGRAM IMAGE URL:', images[0]);
+    // console.log('📝 INSTAGRAM CAPTION:', caption);
 
     const axios = require('axios');
 
@@ -128,9 +132,9 @@ async function processApprovedQueue() {
         maxRedirects: 5,
       });
 
-      console.log('🧪 IMAGE FETCH STATUS:', testRes.status);
-      console.log('🧪 IMAGE CONTENT TYPE:', testRes.headers['content-type']);
-      console.log('🧪 IMAGE SIZE:', testRes.data.length);
+      // console.log('🧪 IMAGE FETCH STATUS:', testRes.status);
+      // console.log('🧪 IMAGE CONTENT TYPE:', testRes.headers['content-type']);
+      // console.log('🧪 IMAGE SIZE:', testRes.data.length);
     } catch (e) {
       console.error('❌ IMAGE URL TEST FAIL:', e.response?.data || e.message);
     }
@@ -152,7 +156,7 @@ async function processApprovedQueue() {
 
     await updateTelegramButtons(CHAT_ID, tgMsgId, 'posted', confessionNo);
 
-    console.log(`🚀 Posted confession #${confessionNo}`);
+    //console.log(`🚀 Posted confession #${confessionNo}`);
     return {
       success: true,
       confessionNo,
@@ -185,11 +189,14 @@ async function processApprovedQueue() {
 
 // worker
 async function startSchedulerWorker() {
-  console.log('Scheduler worker started...');
+  //console.log('Scheduler worker started...');
 
   setInterval(async () => {
+    console.log('🔁 Scheduler interval tick');
+
     try {
       const next = await getNextApprovedConfession();
+      console.log('📦 NEXT APPROVED:', next?.confessionNo);
       if (next && (await shouldPostNow())) {
         await processApprovedQueue();
       }

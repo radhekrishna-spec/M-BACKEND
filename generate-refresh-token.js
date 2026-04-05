@@ -19,8 +19,8 @@ const authUrl = oauth2Client.generateAuthUrl({
   scope: scopes,
 });
 
-console.log('\nOpen this URL in browser:\n');
-console.log(authUrl);
+// console.log('\nOpen this URL in browser:\n');
+// console.log(authUrl);
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -31,11 +31,11 @@ rl.question('\nPaste NEW code here: ', async (code) => {
   try {
     const { tokens } = await oauth2Client.getToken(code.trim());
 
-    console.log('\nTOKENS:\n');
-    console.log(tokens);
+    // console.log('\nTOKENS:\n');
+    // console.log(tokens);
 
-    console.log('\nREFRESH TOKEN:\n');
-    console.log(tokens.refresh_token);
+    // console.log('\nREFRESH TOKEN:\n');
+    // console.log(tokens.refresh_token);
 
     rl.close();
   } catch (err) {

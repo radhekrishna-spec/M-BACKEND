@@ -7,7 +7,7 @@ exports.postNowById = async (id) => {
   try {
     if (!id) throw new Error('id is required');
 
-    console.log(`🚀 Manual post requested for #${id}`);
+    //console.log(`🚀 Manual post requested for #${id}`);
 
     const auth = new google.auth.OAuth2(
       process.env.GOOGLE_CLIENT_ID,
@@ -25,7 +25,7 @@ exports.postNowById = async (id) => {
 
     const fileName = `c_${id}.png`;
 
-    console.log('🔍 Searching queue image:', fileName);
+    //console.log('🔍 Searching queue image:', fileName);
 
     const searchRes = await drive.files.list({
       q: `name='${fileName}' and '${process.env.QUEUE_FOLDER_ID}' in parents and trashed=false`,
@@ -38,7 +38,7 @@ exports.postNowById = async (id) => {
 
     const fileId = searchRes.data.files[0].id;
 
-    console.log('✅ Queue image found:', fileId);
+    //console.log('✅ Queue image found:', fileId);
 
     await drive.permissions.create({
       fileId,
