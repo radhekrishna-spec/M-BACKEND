@@ -111,9 +111,19 @@ async function processApprovedQueue() {
   console.log('🖼 images:', images);
   console.log('📝 caption:', caption);
 
+  if (!confessionNo) {
+    return {
+      success: false,
+      message: 'No approved confession',
+    };
+  }
+
   if (!images.length) {
     store.set(`state_${confessionNo}`, 'FAILED');
-    return;
+    return {
+      success: false,
+      message: 'No images found',
+    };
   }
 
   try {
@@ -123,6 +133,8 @@ async function processApprovedQueue() {
     await postToInstagram(images, caption);
 
     store.set(`state_${confessionNo}`, 'POSTED');
+    store.delete(`images_${confessionNo}`);
+    store.delete(`caption_${confessionNo}`);
     store.set(`posted_time_${confessionNo}`, Date.now());
 
     const tgMsgId = store.get(`telegram_msg_${confessionNo}`);
@@ -130,9 +142,22 @@ async function processApprovedQueue() {
     await updateTelegramButtons(CHAT_ID, tgMsgId, 'posted', confessionNo);
 
     console.log(`🚀 Posted confession #${confessionNo}`);
+    return {
+      success: true,
+      confessionNo,
+      message: `Confession #${confessionNo} posted successfully`,
+    };
   } catch (error) {
     console.error('POST FAIL', error.message);
     store.set(`state_${confessionNo}`, 'FAILED');
+
+   
+
+    return {
+      success: false,
+      confessionNo,
+      message: error.message,
+    };
   } finally {
     store.delete(`posting_${confessionNo}`);
   }
@@ -146,7 +171,7 @@ async function startSchedulerWorker() {
     try {
       const next = getNextApprovedConfession();
 
-      if (next) {
+      if (next && shouldPostNow()) {
         await processApprovedQueue();
       }
     } catch (error) {
