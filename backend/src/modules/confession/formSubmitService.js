@@ -1,4 +1,3 @@
-
 const {
   validateAndPrepareText,
   processMediaFlow,
@@ -7,7 +6,6 @@ const {
 const { checkDuplicate } = require('./services/duplicateService');
 const { createCaptionFlow } = require('./helpers/captionBuilderService');
 const { getSettings } = require('../../services/settingsService');
-
 
 async function processFormSubmit(data, existingConfessionNo = null) {
   const startTime = Date.now();
@@ -30,7 +28,7 @@ async function processFormSubmit(data, existingConfessionNo = null) {
     const caption = await createCaptionFlow(text, mediaResult.confessionNo);
 
     if (settings.telegramPreview) {
-      const { sendTelegram } = require('./telegramService');
+      const { sendTelegram } = require('../social/telegramService');
 
       await sendTelegram(
         mediaResult.images,
