@@ -94,16 +94,21 @@ function getNextApprovedConfession() {
 
 // post flow
 async function processApprovedQueue() {
+  console.log('🧾 STORE DATA:', store.getAll());
+
   const confessionNo = getNextApprovedConfession();
+  console.log('🎯 next confession:', confessionNo);
 
-  if (!confessionNo) return;
-
-  if (store.get(`posting_${confessionNo}`)) {
+  if (!confessionNo) {
+    console.log('❌ no approved confession');
     return;
   }
 
   const images = store.get(`images_${confessionNo}`) || [];
   const caption = store.get(`caption_${confessionNo}`) || '';
+
+  console.log('🖼 images:', images);
+  console.log('📝 caption:', caption);
 
   if (!images.length) {
     store.set(`state_${confessionNo}`, 'FAILED');
