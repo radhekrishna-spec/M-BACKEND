@@ -61,6 +61,8 @@ exports.postNowById = async (id) => {
     console.log('📸 Posting to Instagram...');
     console.log('📝 Caption:', caption);
 
+    await new Promise((resolve) => setTimeout(resolve, 15000));
+
     await postToInstagram([imageUrl], caption);
 
     console.log('✅ Instagram posted successfully');
