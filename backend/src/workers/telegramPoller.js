@@ -194,11 +194,13 @@ async function pollTelegramUpdates() {
       await new Promise((resolve) => setTimeout(resolve, 10000));
       return;
     }
+  } finally {
+    isPolling = false;
   }
 }
 
 let pollerStarted = false;
-let pollLoopCount = 0;
+
 
 function startTelegramPoller() {
   console.log('🚀 startTelegramPoller called at:', new Date().toISOString());
@@ -219,7 +221,7 @@ function startTelegramPoller() {
     } catch (error) {
       console.error('POLL LOOP ERROR:', error.message);
     } finally {
-      setTimeout(pollLoop, 1000);
+      setTimeout(pollLoop, 3000);
     }
   };
 
