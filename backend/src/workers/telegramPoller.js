@@ -53,6 +53,7 @@ async function answerCallback(cbId, text = 'Done ✅') {
 }
 
 async function pollTelegramUpdates() {
+  console.log('📡 polling with offset:', lastUpdateId + 1);
   if (isPolling) return;
 
   isPolling = true;

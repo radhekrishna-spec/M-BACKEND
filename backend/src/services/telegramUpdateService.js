@@ -176,7 +176,7 @@ async function approveConfession(chatId, messageId, confessionNo) {
   store.set(`state_${confessionNo}`, 'APPROVED');
   store.set(`approved_time_${confessionNo}`, Date.now());
 
-  await updateTelegramButtons(CHAT_ID, tgMsgId, 'approved', confessionNo);
+  await updateTelegramButtons(chatId, messageId, 'approved', confessionNo);
 
   await sendTelegramMessage(chatId, `✅ Confession #${confessionNo} approved`);
 }
