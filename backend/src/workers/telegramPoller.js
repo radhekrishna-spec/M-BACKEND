@@ -16,7 +16,7 @@ const {
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const BASE_URL = `https://api.telegram.org/bot${BOT_TOKEN}`;
 
-let lastUpdateId = 0;
+let lastUpdateId = Number(store.get('last_update_id')) || 0;
 let isPolling = false;
 const processedCallbacks = new Map();
 
@@ -81,6 +81,7 @@ async function pollTelegramUpdates() {
         //console.log('🟢 MSG ID:', update.callback_query.message?.message_id);
       }
       lastUpdateId = update.update_id;
+      store.set('last_update_id', lastUpdateId);
 
       // ===============================
       // HANDLE NORMAL TEXT FOR EDIT FLOW
