@@ -11,7 +11,9 @@ const BASE_URL = `https://api.telegram.org/bot${BOT_TOKEN}`;
 // EXACT SAME BUTTON UPDATE FLOW + SAFE
 
 const { splitTextSmart } = require('../modules/confession/helpers/splitText');
-const { generateSlidesImages } = require('../modules/confession/slides/slidesService');
+const {
+  generateSlidesImages,
+} = require('../modules/confession/slides/slidesService');
 const { uploadImagesToDrive } = require('./google/driveService');
 
 async function confirmEdit(chatId, confessionNo, text) {
@@ -173,8 +175,6 @@ async function approveConfession(chatId, messageId, confessionNo) {
   store.set(`status_${confessionNo}`, 'approved');
   store.set(`state_${confessionNo}`, 'APPROVED');
   store.set(`approved_time_${confessionNo}`, Date.now());
-
-  const tgMsgId = store.get(`telegram_msg_${confessionNo}`);
 
   await updateTelegramButtons(CHAT_ID, tgMsgId, 'approved', confessionNo);
 
