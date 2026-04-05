@@ -4,58 +4,80 @@ const { postToInstagram } = require('../../modules/social/instagramService');
 const { google } = require('googleapis');
 
 exports.postNowById = async (id) => {
-  if (!id) throw new Error('id is required');
+  try {
+    if (!id) throw new Error('id is required');
 
-  const auth = new google.auth.OAuth2(
-    process.env.GOOGLE_CLIENT_ID,
-    process.env.GOOGLE_CLIENT_SECRET,
-  );
+    console.log(`🚀 Manual post requested for #${id}`);
 
-  auth.setCredentials({
-    refresh_token: process.env.GOOGLE_REFRESH_TOKEN,
-  });
+    const auth = new google.auth.OAuth2(
+      process.env.GOOGLE_CLIENT_ID,
+      process.env.GOOGLE_CLIENT_SECRET,
+    );
 
-  const drive = google.drive({
-    version: 'v3',
-    auth,
-  });
+    auth.setCredentials({
+      refresh_token: process.env.GOOGLE_REFRESH_TOKEN,
+    });
 
-  const fileName = `c_${id}.png`;
+    const drive = google.drive({
+      version: 'v3',
+      auth,
+    });
 
-  const searchRes = await drive.files.list({
-    q: `name='${fileName}' and '${process.env.QUEUE_FOLDER_ID}' in parents and trashed=false`,
-    fields: 'files(id, name)',
-  });
+    const fileName = `c_${id}.png`;
 
-  if (!searchRes.data.files.length) {
-    throw new Error(`No queue image found for confession #${id}`);
+    console.log('🔍 Searching queue image:', fileName);
+
+    const searchRes = await drive.files.list({
+      q: `name='${fileName}' and '${process.env.QUEUE_FOLDER_ID}' in parents and trashed=false`,
+      fields: 'files(id, name)',
+    });
+
+    if (!searchRes.data.files.length) {
+      throw new Error(`No queue image found for confession #${id}`);
+    }
+
+    const fileId = searchRes.data.files[0].id;
+
+    console.log('✅ Queue image found:', fileId);
+
+    await drive.permissions.create({
+      fileId,
+      requestBody: {
+        role: 'reader',
+        type: 'anyone',
+      },
+    });
+
+    const imageUrl = `https://lh3.googleusercontent.com/d/${fileId}`;
+
+    console.log('🖼️ Image URL:', imageUrl);
+
+    const confession = await Confession.findOne({
+      confessionNo: id,
+    });
+
+    const caption = confession?.message || `Confession #${id}`;
+
+    console.log('📸 Posting to Instagram...');
+    console.log('📝 Caption:', caption);
+
+    await postToInstagram([imageUrl], caption);
+
+    console.log('✅ Instagram posted successfully');
+
+    await moveFileToFolder(fileId, 'posted');
+
+    await Confession.findOneAndUpdate(
+      { confessionNo: id },
+      { status: 'posted' },
+    );
+
+    return {
+      message: `Confession #${id} posted successfully`,
+    };
+  } catch (error) {
+    console.error('❌ POST NOW ERROR:', error.response?.data || error.message);
+
+    throw error;
   }
-
-  const fileId = searchRes.data.files[0].id;
-
-  await drive.permissions.create({
-    fileId,
-    requestBody: {
-      role: 'reader',
-      type: 'anyone',
-    },
-  });
-
-  const imageUrl = `https://lh3.googleusercontent.com/d/${fileId}`;
-
-  const confession = await Confession.findOne({
-    confessionNo: id,
-  });
-
-  const caption = confession?.message || `Confession #${id}`;
-
-  await postToInstagram([imageUrl], caption);
-
-  await moveFileToFolder(fileId, 'posted');
-
-  await Confession.findOneAndUpdate({ confessionNo: id }, { status: 'posted' });
-
-  return {
-    message: `Confession #${id} posted successfully`,
-  };
 };
