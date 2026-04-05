@@ -1,9 +1,10 @@
-
 const { cleanText } = require('../helpers/textCleaner');
 const { splitTextSmart } = require('../helpers/splitText');
 const { getNextConfessionNo } = require('./confessionCounter');
 const { generateSlidesImages } = require('../slides/slidesService');
-const { uploadImagesToDrive } = require('../../../services/google/driveService');
+const {
+  uploadImagesToDrive,
+} = require('../../../services/google/driveService');
 const store = require('../../../store/store');
 
 function validateAndPrepareText(data) {
@@ -18,7 +19,11 @@ function validateAndPrepareText(data) {
 }
 
 async function processMediaFlow(text, existingConfessionNo, settings) {
-  const confessionNo = existingConfessionNo || (await getNextConfessionNo());
+  if (!existingConfessionNo) {
+    throw new Error('confessionNo is required in processMediaFlow');
+  }
+
+  const confessionNo = existingConfessionNo;
 
   const parts = settings.autoSplitParts ? splitTextSmart(text, 665) : [text];
 

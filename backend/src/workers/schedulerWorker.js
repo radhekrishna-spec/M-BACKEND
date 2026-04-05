@@ -1,4 +1,5 @@
 const store = require('../store/store');
+const Confession = require('../models/Confession');
 
 const { updateTelegramButtons } = require('../services/telegramUpdateService');
 const { postToInstagram } = require('../modules/social/instagramService');
@@ -23,21 +24,14 @@ function getPostTimes(queueCount) {
 }
 
 // count approved queue
-function getApprovedQueueCount() {
-  const all = store.getAll() || {};
-  let count = 0;
-
-  for (const key in all) {
-    if (key.startsWith('state_') && all[key] === 'APPROVED') {
-      count++;
-    }
-  }
-
-  return count;
+async function getApprovedQueueCount() {
+  return await Confession.countDocuments({
+    status: 'APPROVED',
+  });
 }
 
 // new time based posting logic
-function shouldPostNow() {
+async function shouldPostNow() {
   const now = new Date();
   const currentHour = now.getHours();
   const currentMinute = now.getMinutes();
@@ -47,7 +41,7 @@ function shouldPostNow() {
     return false;
   }
 
-  const queueCount = getApprovedQueueCount();
+  const queueCount = await getApprovedQueueCount();
 
   if (!queueCount) {
     return false;
@@ -73,36 +67,26 @@ function shouldPostNow() {
 }
 
 // FIFO approved confession
-function getNextApprovedConfession() {
-  const all = store.getAll() || {};
-  const approved = [];
-
-  for (const key in all) {
-    if (key.startsWith('state_') && all[key] === 'APPROVED') {
-      const id = key.replace('state_', '');
-      approved.push(Number(id));
-    }
-  }
-
-  if (!approved.length) {
-    return null;
-  }
-
-  approved.sort((a, b) => a - b);
-
-  return approved[0];
+async function getNextApprovedConfession() {
+  return await Confession.findOne({
+    status: 'APPROVED',
+  }).sort({ confessionNo: 1 });
 }
 
 // post flow
 async function processApprovedQueue() {
   console.log('🧾 STORE DATA:', store.getAll());
 
-  const confessionNo = getNextApprovedConfession();
-  console.log('🎯 next confession:', confessionNo);
+  const confession = await getNextApprovedConfession();
 
-  if (!confessionNo) {
+  console.log('🧾 NEXT APPROVED CONFESSION:', confession);
+
+  if (!confession) {
     console.log('❌ no approved confession');
-    return;
+    return {
+      success: false,
+      message: 'No approved confession',
+    };
   }
 
   const images = store.get(`images_${confessionNo}`) || [];
@@ -128,11 +112,17 @@ async function processApprovedQueue() {
 
   try {
     store.set(`posting_${confessionNo}`, '1');
-    store.set(`state_${confessionNo}`, 'POSTING');
+    await Confession.updateOne({ confessionNo }, { status: 'POSTING' });
 
     await postToInstagram(images, caption);
+    await Confession.updateOne(
+      { confessionNo },
+      {
+        status: 'POSTED',
+        postedTime: new Date(),
+      },
+    );
 
-    store.set(`state_${confessionNo}`, 'POSTED');
     store.delete(`images_${confessionNo}`);
     store.delete(`caption_${confessionNo}`);
     store.set(`posted_time_${confessionNo}`, Date.now());
@@ -154,7 +144,13 @@ async function processApprovedQueue() {
       data: error.response?.data,
     });
 
-    store.set(`state_${confessionNo}`, 'FAILED');
+    await Confession.updateOne(
+      { confessionNo },
+      {
+        status: 'FAILED',
+        failureReason: error.message,
+      },
+    );
 
     return {
       success: false,
@@ -172,9 +168,8 @@ async function startSchedulerWorker() {
 
   setInterval(async () => {
     try {
-      const next = getNextApprovedConfession();
-
-      if (next && shouldPostNow()) {
+      const next = await getNextApprovedConfession();
+      if (next && (await shouldPostNow())) {
         await processApprovedQueue();
       }
     } catch (error) {

@@ -29,15 +29,6 @@ exports.postConfessionNow = async (req, res) => {
   try {
     console.log('🚀 Manual post-now request received');
 
-    store.set('state_17', 'APPROVED');
-    store.set('caption_17', 'Confession #17');
-    store.set('images_17', [
-      'https://lh3.googleusercontent.com/d/1cj_hjaR-I41KG2hrOZUhSquCHySLtR5s',
-    ]);
-
-    console.log('🧪 temp data injected');
-    console.log('🧾 STORE AFTER INJECT:', store.getAll());
-
     const result = await processApprovedQueue();
 
     console.log('📤 processApprovedQueue result:', result);

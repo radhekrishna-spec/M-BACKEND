@@ -2,6 +2,7 @@ const {
   validateAndPrepareText,
   processMediaFlow,
 } = require('./services/confessionPipelineService');
+const { getNextConfessionNo } = require('./services/confessionCounter');
 
 const { checkDuplicate } = require('./services/duplicateService');
 const { createCaptionFlow } = require('./helpers/captionBuilderService');
@@ -19,23 +20,28 @@ async function processFormSubmit(data, existingConfessionNo = null) {
       checkDuplicate(text);
     }
 
-    const mediaResult = await processMediaFlow(
-      text,
-      existingConfessionNo,
-      settings,
-    );
+    const confessionNo = existingConfessionNo || (await getNextConfessionNo());
 
+    const mediaResult = await processMediaFlow(text, confessionNo, settings);
     const caption = await createCaptionFlow(text, mediaResult.confessionNo);
 
     if (settings.telegramPreview) {
       const { sendTelegram } = require('../social/telegramService');
 
-      await sendTelegram(
-        mediaResult.images,
-        caption,
-        mediaResult.confessionNo,
-        !!existingConfessionNo,
-      );
+      try {
+        await new Promise((resolve) => setTimeout(resolve, 8000));
+        await sendTelegram(
+          mediaResult.images,
+          caption,
+          mediaResult.confessionNo,
+          !!existingConfessionNo,
+        );
+      } catch (error) {
+        console.error(
+          '❌ Telegram send failed but confession saved:',
+          error.response?.data || error.message,
+        );
+      }
     }
 
     return {

@@ -25,7 +25,7 @@ function getDriveClient() {
 }
 
 function getDriveDirectImageUrl(fileId) {
-  return `https://drive.google.com/uc?export=view&id=${fileId}`;
+  return `https://docs.google.com/presentation/d/${fileId}/export/png`;
 }
 
 async function uploadImagesToDrive(

@@ -21,7 +21,7 @@ async function createManualConfession(message) {
     const newConfession = new Confession({
       message: message.trim(),
       confessionNo,
-      status: 'pending',
+      status: 'PENDING',
     });
 
     await newConfession.save();

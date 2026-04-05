@@ -48,35 +48,7 @@ exports.postNowById = async (id) => {
       },
     });
 
-    const imageUrl = `https://lh3.googleusercontent.com/d/${fileId}`;
-
-    console.log('🖼️ Image URL:', imageUrl);
-
-    const confession = await Confession.findOne({
-      confessionNo: id,
-    });
-
-    const caption = confession?.message || `Confession #${id}`;
-
-    console.log('📸 Posting to Instagram...');
-    console.log('📝 Caption:', caption);
-
-    await new Promise((resolve) => setTimeout(resolve, 15000));
-
-    await postToInstagram([imageUrl], caption);
-
-    console.log('✅ Instagram posted successfully');
-
-    await moveFileToFolder(fileId, 'posted');
-
-    await Confession.findOneAndUpdate(
-      { confessionNo: id },
-      { status: 'posted' },
-    );
-
-    return {
-      message: `Confession #${id} posted successfully`,
-    };
+    return `https://drive.google.com/uc?export=download&id=${fileId}`;
   } catch (error) {
     console.error('❌ POST NOW ERROR:', error.response?.data || error.message);
 

@@ -58,7 +58,7 @@ router.post('/submit', async (req, res) => {
     const newConfession = new Confession({
       message,
       confessionNo,
-      status: 'pending',
+      status: 'PENDING',
     });
 
     await newConfession.save();
@@ -71,7 +71,7 @@ router.post('/submit', async (req, res) => {
     console.log('STEP 3 process done');
 
     const queueAhead = await Confession.countDocuments({
-      status: 'pending',
+      status: 'PENDING',
       confessionNo: { $lt: confessionNo },
     });
 

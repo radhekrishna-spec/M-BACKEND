@@ -1,5 +1,6 @@
 const axios = require('axios');
 const store = require('../../store/store');
+const FormData = require('form-data');
 
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
@@ -21,38 +22,74 @@ async function sendTelegram(images, caption, confessionNo, isEdit = false) {
     const chunkSize = 10;
     const sentMessageIds = [];
 
-    for (let i = 0; i < images.length; i += chunkSize) {
-      const chunk = images.slice(i, i + chunkSize);
+    try {
+      for (let i = 0; i < images.length; i += chunkSize) {
+        const imgUrl = images[i];
 
-      const media = chunk.map((img, idx) => ({
-        type: 'photo',
-        media: img,
-        caption: i === 0 && idx === 0 ? caption : undefined,
-      }));
+        console.log('📤 Downloading image for Telegram:', imgUrl);
+        const imageRes = await axios.get(imgUrl, {
+          responseType: 'arraybuffer',
+          timeout: 20000,
+          headers: {
+            Accept: 'image/png,image/*,*/*',
+            'User-Agent': 'Mozilla/5.0',
+          },
+          maxRedirects: 5,
+        });
 
-      const mediaRes = await axios.post(
-        `${BASE_URL}/sendMediaGroup`,
+        const contentType = imageRes.headers['content-type'];
+
+        console.log('🧪 IMAGE CONTENT TYPE:', contentType);
+
+        if (!contentType || !contentType.includes('image')) {
+          throw new Error('Downloaded file is not an image');
+        }
+
+        const form = new FormData();
+
+        form.append('chat_id', CHAT_ID);
+        form.append(
+          'photo',
+          Buffer.from(imageRes.data),
+          `confession_${confessionNo}.png`,
+        );
+
+        if (i === 0) {
+          form.append('caption', caption);
+        }
+
+        const mediaRes = await axios.post(`${BASE_URL}/sendPhoto`, form, {
+          headers: form.getHeaders(),
+          timeout: 20000,
+        });
+
+        const msgId = mediaRes.data?.result?.message_id;
+
+        if (msgId) {
+          sentMessageIds.push(msgId);
+        }
+
+        await sleep(1200);
+      }
+    } catch (error) {
+      console.error('TG MEDIA FAIL:', error.response?.data || error.message);
+
+      // fallback text message if image fails
+      await axios.post(
+        `${BASE_URL}/sendMessage`,
         {
           chat_id: CHAT_ID,
-          media,
+          text: `${caption}\n\nConfession #${confessionNo}`,
         },
         {
-          timeout: 20000,
+          timeout: 10000,
         },
       );
 
-      const results = mediaRes.data?.result || [];
-
-      results.forEach((msg) => {
-        if (msg?.message_id) {
-          sentMessageIds.push(msg.message_id);
-        }
-      });
-
-      await sleep(1200);
+      console.log('📨 Fallback text message sent');
     }
 
-    // button message only if new confession
+    // approval buttons always send
     const res = await axios.post(
       `${BASE_URL}/sendMessage`,
       {
@@ -84,8 +121,12 @@ async function sendTelegram(images, caption, confessionNo, isEdit = false) {
 
     const messageId = res.data?.result?.message_id;
 
-    store.set(`telegram_msg_${confessionNo}`, messageId);
+    const Confession = require('../../models/Confession');
 
+    await Confession.updateOne(
+      { confessionNo },
+      { telegramMessageId: messageId },
+    );
     store.set(`telegram_media_msgs_${confessionNo}`, sentMessageIds);
     store.set(`telegram_sent_${confessionNo}`, 'yes');
 
