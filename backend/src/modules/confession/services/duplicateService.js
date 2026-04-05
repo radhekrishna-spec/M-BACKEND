@@ -1,4 +1,4 @@
-const store = require('../store/store');
+const store = require('../../../store/store');
 
 function checkDuplicate(text) {
   const lastText = store.get('LAST_PROCESSED_TEXT');

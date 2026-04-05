@@ -1,5 +1,5 @@
-const store = require('../store');
-const { postCarousel } = require('../services/instagramService');
+const store = require('../store/store');
+const { postCarousel } = require('../modules/social/instagramService');
 const { updateTelegramButtons } = require('../services/telegramUpdateService');
 
 const CHAT_ID = process.env.TELEGRAM_CHAT_ID;

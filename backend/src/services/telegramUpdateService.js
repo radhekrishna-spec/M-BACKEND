@@ -1,8 +1,8 @@
 const axios = require('axios');
-const store = require('../store');
-const { sendTelegramMessage } = require('./telegramService');
-const { addToEditQueue } = require('../workers/editQueueWorker');
-const { processFormSubmit } = require('./formSubmitService');
+const store = require('../store/store');
+const { sendTelegramMessage } = require('../modules/social/telegramService');
+//const { addToEditQueue } = require('../modules/confession/workers/editQueueWorker');
+//const { processFormSubmit } = require('./formSubmitService');
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
@@ -10,9 +10,9 @@ const BASE_URL = `https://api.telegram.org/bot${BOT_TOKEN}`;
 
 // EXACT SAME BUTTON UPDATE FLOW + SAFE
 
-const { splitTextSmart } = require('./splitText');
-const { generateSlidesImages } = require('./slidesService');
-const { uploadImagesToDrive } = require('./driveService');
+const { splitTextSmart } = require('../modules/confession/helpers/splitText');
+const { generateSlidesImages } = require('../modules/confession/slides/slidesService');
+const { uploadImagesToDrive } = require('./google/driveService');
 
 async function confirmEdit(chatId, confessionNo, text) {
   try {

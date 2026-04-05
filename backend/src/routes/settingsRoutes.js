@@ -4,7 +4,7 @@ const { getSettings, updateSettings } = require('../services/settingsService');
 const {
   setConfessionNo,
   getCurrentConfessionNo,
-} = require('../services/confessionCounter');
+} = require('../modules/confession/services/confessionCounter');
 
 router.get('/settings', (req, res) => {
   res.json({

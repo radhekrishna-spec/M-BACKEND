@@ -1,4 +1,4 @@
-const Counter = require('../models/Counter');
+const Counter = require('../../../models/Counter');
 
 const DEFAULT_CONFESSION_NO = 1000;
 

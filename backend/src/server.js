@@ -1,8 +1,5 @@
 require('dotenv').config();
 
-const connectDB = require('./config/db');
-const confessionRoutes = require('./routes/confessionRoutes');
-const paymentRoutes = require('./routes/paymentRoutes');
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -11,8 +8,13 @@ const morgan = require('morgan');
 const fs = require('fs');
 const path = require('path');
 
+const connectDB = require('./config/db');
+
+const confessionRoutes = require('./routes/confessionRoutes');
+const paymentRoutes = require('./routes/paymentRoutes');
 const submitRoutes = require('./routes/submitRoutes');
 const settingsRoutes = require('./routes/settingsRoutes');
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -27,13 +29,30 @@ const accessLogStream = fs.createWriteStream(path.join(logsDir, 'access.log'), {
   flags: 'a',
 });
 
-app.use(cors());
 // middlewares
+app.use(cors());
 app.use(helmet());
 app.use(compression());
 
+
+app.use(morgan('combined', { stream: accessLogStream }));
+app.use(morgan('dev'));
+
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
+
+//health
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    success: true,
+    status: 'UP',
+    port: PORT,
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// Routes
 app.use('/api/confessions', confessionRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/', submitRoutes);
@@ -50,20 +69,10 @@ async function startServer() {
 
 startServer();
 
-app.use(express.json());
 
-app.use(morgan('combined', { stream: accessLogStream }));
-app.use(morgan('dev'));
 
-// routes
-app.get('/health', (req, res) => {
-  res.status(200).json({
-    success: true,
-    status: 'UP',
-    port: PORT,
-    timestamp: new Date().toISOString(),
-  });
-});
+
+
 
 // error handler
 app.use((err, req, res, next) => {
@@ -84,7 +93,7 @@ function startWorkersSafely() {
 
     const { startRecoveryWorker } = require('./workers/recoveryWorker');
 
-    const { startEditQueueWorker } = require('./workers/editQueueWorker');
+    const { startEditQueueWorker } = require('./modules/confession//workers/editQueueWorker');
 
     startTelegramPoller();
     startSchedulerWorker();

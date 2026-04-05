@@ -1,6 +1,6 @@
 const { google } = require('googleapis');
 const { Readable } = require('stream');
-const store = require('../store/store');
+const store = require('../../store/store');
 
 const ROOT_FOLDER_ID = process.env.ROOT_FOLDER_ID;
 const QUEUE_FOLDER_ID = process.env.QUEUE_FOLDER_ID;

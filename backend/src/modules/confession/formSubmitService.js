@@ -1,8 +1,13 @@
-const { validateAndPrepareText } = require('./confessionPipelineService');
-const { checkDuplicate } = require('./duplicateService');
+
+const {
+  validateAndPrepareText,
+  processMediaFlow,
+} = require('./services/confessionPipelineService');
+
+const { checkDuplicate } = require('./services/duplicateService');
 const { createCaptionFlow } = require('./helpers/captionBuilderService');
-const { processMediaFlow } = require('./confessionPipelineService');
-const { getSettings } = require('./settingsService');
+const { getSettings } = require('../../services/settingsService');
+
 
 async function processFormSubmit(data, existingConfessionNo = null) {
   const startTime = Date.now();

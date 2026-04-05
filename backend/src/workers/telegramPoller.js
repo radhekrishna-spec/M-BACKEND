@@ -1,5 +1,5 @@
 const axios = require('axios');
-const store = require('../store');
+const store = require('../store/store');
 
 const {
   approveConfession,
@@ -9,7 +9,7 @@ const {
   updateTelegramButtons,
 } = require('../services/telegramUpdateService');
 
-const { processFormSubmit } = require('../services/formSubmitService');
+const { processFormSubmit } = require('../modules/confession/formSubmitService');
 
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const BASE_URL = `https://api.telegram.org/bot${BOT_TOKEN}`;

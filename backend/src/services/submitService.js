@@ -1,11 +1,15 @@
 const Confession = require('../models/Confession');
-const Counter = require('../models/Counter');
-const { processFormSubmit } = require('./formSubmitService');
+
+const {
+  processFormSubmit,
+} = require('../modules/confession/formSubmitService');
+const {
+  getNextConfessionNo,
+} = require('../modules/confession/services/confessionCounter');
+
 const { getEstimatedPostTime } = require('../utils/etaHelper');
-const { getNextConfessionNo } = require('./confessionCounter');
 
 exports.createConfession = async ({ message }) => {
-
   const confessionNo = await getNextConfessionNo();
 
   const newConfession = await Confession.create({

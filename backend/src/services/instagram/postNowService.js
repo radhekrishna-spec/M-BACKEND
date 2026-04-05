@@ -1,6 +1,6 @@
-const Confession = require('../../../models/Confession');
-const { moveFileToFolder } = require('./driveService');
-const { postToInstagram } = require('./instagramService');
+const Confession = require('../../models/Confession');
+const { moveFileToFolder } = require('../google/driveService');
+const { postToInstagram } = require('../../modules/social/instagramService');
 const { google } = require('googleapis');
 
 exports.postNowById = async (id) => {

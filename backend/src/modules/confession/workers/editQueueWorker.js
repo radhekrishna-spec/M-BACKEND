@@ -1,6 +1,6 @@
-const store = require('../store');
-const { processFormSubmit } = require('../services/formSubmitService');
-const { sendTelegramMessage } = require('../services/telegramService');
+const store = require('../../../store/store');
+const { processFormSubmit } = require('../formSubmitService');
+const { sendTelegramMessage } = require('../../social/telegramService');
 const {
   regenerateEditedConfession,
 } = require('../services/editRegenerateService');

@@ -1,5 +1,5 @@
 const { createConfession } = require('../services/submitService');
-const { postNowById } = require('../services/postNowService');
+const { postNowById } = require('../services/instagram/postNowService');
 
 exports.submitConfession = async (req, res) => {
   try {
@@ -19,7 +19,8 @@ exports.submitConfession = async (req, res) => {
 
 exports.postConfessionNow = async (req, res) => {
   try {
-    const result = await postNowById(req.body.id);
+    const { id } = req.body;
+    const result = await postNowById(id);
 
     res.status(200).json({
       success: true,

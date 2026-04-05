@@ -2,7 +2,9 @@ const express = require('express');
 const router = express.Router();
 const Confession = require('../models/Confession');
 const Counter = require('../models/Counter');
-const { processFormSubmit } = require('../services/formSubmitService');
+const {
+  processFormSubmit,
+} = require('../modules/confession/formSubmitService');
 function getPostTimes(queueCount) {
   if (queueCount <= 3) return [9, 13, 21];
   if (queueCount <= 6) return [9, 12, 15, 17, 19, 22];

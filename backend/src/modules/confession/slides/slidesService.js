@@ -1,6 +1,6 @@
 const { google } = require('googleapis');
-const { autoFitTextConfig } = require('../../services/slideTextFit');
-const { getGoogleAuthClient } = require('./googleAuthService');
+const { autoFitTextConfig } = require('../helpers/slideTextFit');
+const { getGoogleAuthClient } = require('../../../services/google/googleAuthService');
 const { exportSlideAsPNG } = require('../../../services/slideExportService');
 
 async function createSlidePNG(text, confessionNo, partNo, totalParts) {

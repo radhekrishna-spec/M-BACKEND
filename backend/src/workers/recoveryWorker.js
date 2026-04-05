@@ -1,4 +1,4 @@
-const store = require('../store');
+const store = require('../store/store');
 const { updateTelegramButtons } = require('../services/telegramUpdateService');
 
 const CHAT_ID = process.env.TELEGRAM_CHAT_ID;

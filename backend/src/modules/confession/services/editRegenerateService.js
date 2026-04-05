@@ -1,7 +1,7 @@
-const store = require('../store');
-const { splitTextSmart } = require('./splitText');
-const { generateSlidesImages } = require('./slidesService');
-const { uploadImagesToDrive } = require('./driveService');
+const store = require('../../../store/store');
+const { splitTextSmart } = require('../helpers/splitText');
+const { generateSlidesImages } = require('../slides/slidesService');
+const { uploadImagesToDrive } = require('../../../services/google/driveService');
 
 async function regenerateEditedConfession(confessionNo, text) {
   const parts = splitTextSmart(text, 665);
