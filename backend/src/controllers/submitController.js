@@ -1,6 +1,7 @@
 const { createConfession } = require('../services/submitService');
 const { postNowById } = require('../services/instagram/postNowService');
 const { processApprovedQueue } = require('../workers/schedulerWorker');
+const store = require('../store/store');
 
 exports.submitConfession = async (req, res) => {
   try {
