@@ -1,6 +1,7 @@
 const store = require('../store/store');
-const { postCarousel } = require('../modules/social/instagramService');
+
 const { updateTelegramButtons } = require('../services/telegramUpdateService');
+const { postToInstagram } = require('../modules/social/instagramService');
 
 const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
@@ -119,7 +120,7 @@ async function processApprovedQueue() {
     store.set(`posting_${confessionNo}`, '1');
     store.set(`state_${confessionNo}`, 'POSTING');
 
-    await postCarousel(images, caption);
+    await postToInstagram(images, caption);
 
     store.set(`state_${confessionNo}`, 'POSTED');
     store.set(`posted_time_${confessionNo}`, Date.now());
