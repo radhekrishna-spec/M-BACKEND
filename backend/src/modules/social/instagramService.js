@@ -21,6 +21,7 @@ async function postSingleImage(imageUrl, caption) {
   if (!creationId) {
     throw new Error('Single image container create failed');
   }
+  await new Promise((r) => setTimeout(r, 30000));
 
   await axios.post(
     `https://graph.facebook.com/v19.0/${IG_USER_ID}/media_publish`,
