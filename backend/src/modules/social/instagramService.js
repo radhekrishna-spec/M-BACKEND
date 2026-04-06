@@ -78,11 +78,14 @@ async function postCarousel(images, caption) {
     },
   );
 
-  const creationId = carousel.data.id;
+  const creationId = container.data.id;
+
+  await new Promise((r) => setTimeout(r, 10000));
 
   if (!creationId) {
     throw new Error('Carousel create failed');
   }
+  await new Promise((r) => setTimeout(r, 20000));
 
   await axios.post(
     `https://graph.facebook.com/v19.0/${IG_USER_ID}/media_publish`,
