@@ -23,7 +23,7 @@ async function sendTelegram(images, caption, confessionNo, isEdit = false) {
     const sentMessageIds = [];
 
     try {
-      for (let i = 0; i < images.length; i += chunkSize) {
+      for (let i = 0; i < images.length; i++) {
         const imageBuffer = images[i];
         //console.log('📦 TELEGRAM BUFFER SIZE:', imageBuffer.length);
         //console.log('🧪 PNG SIGNATURE:', imageBuffer.slice(0, 8));
