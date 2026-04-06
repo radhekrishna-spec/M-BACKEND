@@ -1,17 +1,16 @@
-import React, { useMemo, useState, useEffect } from 'react';
 import {
-  Shield,
-  Image,
-  Bell,
   BarChart3,
+  Bell,
   Database,
-  Bot,
-  Search,
-  Save,
-  RefreshCw,
-  AlertTriangle,
+  Image,
   Palette,
+  RefreshCw,
+  Save,
+  Search,
+  Shield,
 } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import SubmitConfession from './submitConfession';
 
 const API_BASE = import.meta.env.DEV
   ? 'http://localhost:3000'
@@ -299,6 +298,7 @@ export default function BackendControlsDashboard() {
           </div>
 
           <div className="space-y-6">
+            <SubmitConfession />
             <ConfessionNoControl />
 
             <div className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-md p-5 shadow-xl">
