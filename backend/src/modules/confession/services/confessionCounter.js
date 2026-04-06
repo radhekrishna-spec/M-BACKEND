@@ -37,7 +37,6 @@ async function getCurrentConfessionNo() {
 
   return counter?.seq || DEFAULT_CONFESSION_NO;
 }
-
 module.exports = {
   getNextConfessionNo,
   setConfessionNo,
