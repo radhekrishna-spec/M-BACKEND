@@ -1,24 +1,42 @@
 const Counter = require('../../../models/Counter');
+const Confession = require('../../../models/Confession');
 
 const DEFAULT_CONFESSION_NO = 1000;
 
 async function getNextConfessionNo() {
-  const counter = await Counter.findOneAndUpdate(
+  let counter = await Counter.findOne({
+    key: 'confessionNumber',
+  });
+
+  // First-time initialization
+  if (!counter) {
+    const lastConfession = await Confession.findOne().sort({
+      confessionNo: -1,
+    });
+
+    const startNo = lastConfession
+      ? lastConfession.confessionNo
+      : DEFAULT_CONFESSION_NO;
+
+    counter = await Counter.create({
+      key: 'confessionNumber',
+      seq: startNo,
+    });
+  }
+
+  const updatedCounter = await Counter.findOneAndUpdate(
     { key: 'confessionNumber' },
+    { $inc: { seq: 1 } },
     {
-      $inc: { seq: 1 },
-      $setOnInsert: { seq: 217 },
-    },
-    {
-      upsert: true,
-      new: true,
+      returnDocument: 'after',
     },
   );
 
-  return counter.seq;
+  return updatedCounter.seq;
 }
+
 async function setConfessionNo(newNo) {
-  await Counter.findOneAndUpdate(
+  const updatedCounter = await Counter.findOneAndUpdate(
     { key: 'confessionNumber' },
     { $set: { seq: Number(newNo) } },
     {
@@ -27,7 +45,7 @@ async function setConfessionNo(newNo) {
     },
   );
 
-  return Number(newNo);
+  return updatedCounter.seq;
 }
 
 async function getCurrentConfessionNo() {
@@ -37,6 +55,7 @@ async function getCurrentConfessionNo() {
 
   return counter?.seq || DEFAULT_CONFESSION_NO;
 }
+
 module.exports = {
   getNextConfessionNo,
   setConfessionNo,
