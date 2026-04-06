@@ -32,7 +32,12 @@ async function getApprovedQueueCount() {
 
 // new time based posting logic
 async function shouldPostNow() {
-  const now = new Date();
+  const now = new Date(
+    new Date().toLocaleString('en-US', {
+      timeZone: 'Asia/Kolkata',
+    }),
+  );
+
   const currentHour = now.getHours();
 
   console.log('⏰ SCHEDULER CHECK RUNNING');
