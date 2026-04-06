@@ -34,19 +34,9 @@ async function getApprovedQueueCount() {
 async function shouldPostNow() {
   const now = new Date();
   const currentHour = now.getHours();
-  const currentMinute = now.getMinutes();
 
   console.log('⏰ SCHEDULER CHECK RUNNING');
-  console.log('🕒 CURRENT TIME:', new Date().toLocaleTimeString());
-  console.log('🕒 CURRENT MINUTE:', currentMinute);
-
-  // only trigger in first 5 mins
-  // if (currentMinute > 59) {
-  //   return false;
-  // }
-  if (currentMinute % 2 === 0) {
-    return true;
-  }
+  console.log('🕒 CURRENT TIME:', now.toLocaleTimeString());
 
   const queueCount = await getApprovedQueueCount();
 
@@ -56,23 +46,24 @@ async function shouldPostNow() {
 
   const postTimes = getPostTimes(queueCount);
 
-  const lastSlotKey = `LAST_POST_SLOT_${currentHour}`;
-  const todayKey = new Date().toDateString();
-
-  const alreadyPosted = store.get(lastSlotKey);
-
-  if (alreadyPosted === todayKey) {
+  // current hour allowed hai ya nahi
+  if (!postTimes.includes(currentHour)) {
     return false;
   }
 
-  if (postTimes.includes(currentHour)) {
-    store.set(lastSlotKey, todayKey);
-    return true;
+  const todayKey = now.toDateString();
+  const slotKey = `LAST_POST_SLOT_${todayKey}_${currentHour}`;
+
+  // iss hour slot me already post ho chuki
+  if (store.get(slotKey)) {
+    return false;
   }
 
-  return false;
-}
+  // mark slot as used
+  store.set(slotKey, '1');
 
+  return true;
+}
 // FIFO approved confession
 async function getNextApprovedConfession() {
   return await Confession.findOne({
