@@ -41,7 +41,7 @@ export default function SubmitConfession() {
   };
 
   return (
-    <div className="min-h-screen bg-[#050816] flex items-center justify-center px-4">
+    <div className=" bg-[#050816] flex items-center justify-center px-4 py-10">
       <div className="w-full max-w-md rounded-3xl border border-white/10 bg-white/[0.04] backdrop-blur-xl shadow-2xl p-6">
         <h2 className="text-white text-xl font-semibold mb-4">
           Anonymous Confession 🎭
