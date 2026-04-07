@@ -6,7 +6,7 @@ export default function AdminLoginPage() {
   const navigate = useNavigate();
 
   const handleLogin = () => {
-    if (password === 'admin123') {
+    if (password === import.meta.env.VITE_ADMIN_PASSWORD) {
       localStorage.setItem('adminAuth', 'true');
       navigate('/admin');
     } else {
