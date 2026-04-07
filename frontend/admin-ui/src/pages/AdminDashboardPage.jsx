@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import ConfessionTable from '../components/ConfessionTable';
 import Pagination from '../components/Pagination';
 import QuickPreview from '../components/QuickPreview';
@@ -9,6 +10,7 @@ export default function AdminDashboardPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [search, setSearch] = useState('');
   const [selectedConfession, setSelectedConfession] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetch(
@@ -47,7 +49,7 @@ export default function AdminDashboardPage() {
 
         <div className="flex gap-3">
           <button
-            onClick={() => (window.location.href = '/backend')}
+            onClick={() => navigate('/backend')}
             className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-xl"
           >
             Backend Controls
