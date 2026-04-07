@@ -14,6 +14,7 @@ const confessionRoutes = require('./routes/confessionRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 const submitRoutes = require('./routes/submitRoutes');
 const settingsRoutes = require('./routes/settingsRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -56,13 +57,14 @@ app.use('/api/confessions', confessionRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/', submitRoutes);
 app.use('/api', settingsRoutes);
+app.use('/api/admin', adminRoutes);
 
 async function startServer() {
   await connectDB();
 
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Server running on ${PORT}`);
-   
+
     setTimeout(() => {
       startWorkers();
       console.log('✅ All workers started');

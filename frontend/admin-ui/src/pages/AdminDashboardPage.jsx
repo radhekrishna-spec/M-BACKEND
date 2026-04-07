@@ -11,7 +11,7 @@ export default function AdminDashboardPage() {
   const [selectedConfession, setSelectedConfession] = useState(null);
 
   useEffect(() => {
-    fetch('https://YOUR-RENDER-BACKEND.onrender.com/api/admin/confessions')
+    fetch('https://confession-admin-ui.onrender.com/api/admin/confessions')
       .then((res) => res.json())
       .then((data) => setConfessions(data))
       .catch((err) => console.error(err));
