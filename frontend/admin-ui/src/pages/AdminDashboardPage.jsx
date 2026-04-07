@@ -85,7 +85,10 @@ export default function AdminDashboardPage() {
           />
         </div>
 
-        <QuickPreview confession={selectedConfession} />
+        <QuickPreview
+          confession={selectedConfession}
+          onClose={() => setSelectedConfession(null)}
+        />
       </div>
     </div>
   );
