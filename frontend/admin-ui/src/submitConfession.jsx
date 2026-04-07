@@ -54,6 +54,9 @@ export default function SubmitConfession() {
         maxLength={6000}
         className="w-full border border-white/10 bg-white/5 rounded-2xl p-3 text-white placeholder:text-gray-400 mb-3 outline-none resize-none"
       />
+      <p className="text-sm text-gray-400 mb-3 text-right">
+        {message.length}/6000
+      </p>
 
       <button
         onClick={submitConfession}
