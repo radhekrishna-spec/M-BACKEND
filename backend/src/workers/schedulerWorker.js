@@ -28,7 +28,7 @@ function getRandomMinuteForHour(dateKey, hour) {
   let minute = store.get(key);
 
   if (minute === undefined || minute === null) {
-    minute = Math.floor(Math.random() * 12) + 1; // 1 to 12
+    minute = Math.floor(Math.random() * 59) // 1 to 12
     store.set(key, minute);
   }
 
@@ -50,10 +50,10 @@ async function shouldPostNow() {
     }),
   );
 
-  if (now.getMinutes() % 20 === 0) {
-    return true;
-  }
-  return false;
+  // if (now.getMinutes() % 20 === 0) {
+  //   return true;
+  // }
+  // return false;
 
   const currentHour = now.getHours();
   const currentMinute = now.getMinutes();
@@ -76,7 +76,7 @@ async function shouldPostNow() {
   const randomMinute = getRandomMinuteForHour(todayKey, currentHour);
 
   // allow only 2 min window
-  if (currentMinute < randomMinute || currentMinute > randomMinute + 1) {
+    if (currentMinute < randomMinute) {
     return false;
   }
 
