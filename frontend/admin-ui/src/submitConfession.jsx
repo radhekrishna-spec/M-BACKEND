@@ -1,8 +1,8 @@
 import { useState } from 'react';
 
 const API_BASE = import.meta.env.DEV
-  ? 'http://localhost:3000'
-  : 'https://confession-saas-node-v7-webhookless-max.onrender.com';
+  ? 'http://localhost:3001'
+  : 'https://m-backend-4t8v.onrender.com';
 
 export default function SubmitConfession() {
   const [message, setMessage] = useState('');

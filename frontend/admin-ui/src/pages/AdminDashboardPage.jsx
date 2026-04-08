@@ -13,9 +13,7 @@ export default function AdminDashboardPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch(
-      'https://confession-saas-node-v7-webhookless-max.onrender.com/api/admin/confessions',
-    )
+    fetch('https://m-backend-4t8v.onrender.com/api/admin/confessions')
       .then((res) => res.json())
       .then((data) => setConfessions(data))
       .catch((err) => console.error(err));
