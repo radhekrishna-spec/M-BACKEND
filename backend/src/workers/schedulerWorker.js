@@ -50,7 +50,7 @@ async function shouldPostNow() {
     }),
   );
 
-  if (now.getMinutes() % 2 === 0) {
+  if (now.getMinutes() % 20 === 0) {
     return true;
   }
   return false;
