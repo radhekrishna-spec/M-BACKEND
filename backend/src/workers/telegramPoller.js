@@ -59,6 +59,8 @@ async function pollTelegramUpdates() {
   isPolling = true;
 
   try {
+    console.log("📡 Poller running...");
+    console.log("📍 Current offset:", lastUpdateId + 1);
     cleanupProcessedCallbacks();
 
     const res = await axios.get(`${BASE_URL}/getUpdates`, {
@@ -71,14 +73,17 @@ async function pollTelegramUpdates() {
 
     const updates = res.data?.result || [];
 
+    console.log("📩 Total updates received:", updates.length);
+    console.log("📦 RAW updates:", JSON.stringify(updates, null, 2));
+
     for (const update of updates) {
-      // console.log('📩 FULL UPDATE:', JSON.stringify(update, null, 2));
+      console.log('📩 FULL UPDATE:', JSON.stringify(update, null, 2));
 
       if (update.callback_query) {
-        // console.log('🟢 CALLBACK RECEIVED');
-        // console.log('🟢 DATA:', update.callback_query.data);
-        // console.log('🟢 CHAT ID:', update.callback_query.message?.chat?.id);
-        //console.log('🟢 MSG ID:', update.callback_query.message?.message_id);
+        console.log('🟢 CALLBACK RECEIVED');
+        console.log('🟢 DATA:', update.callback_query.data);
+        console.log('🟢 CHAT ID:', update.callback_query.message?.chat?.id);
+        console.log('🟢 MSG ID:', update.callback_query.message?.message_id);
       }
       lastUpdateId = update.update_id;
       store.set('last_update_id', lastUpdateId);
@@ -125,7 +130,9 @@ async function pollTelegramUpdates() {
       const messageId = cb.message?.message_id;
 
       try {
+        console.log("⚡ Callback data:", data);
         if (data.startsWith('approve_')) {
+          console.log("✅ APPROVE BUTTON CLICKED");
           const id = data.replace('approve_', '');
 
           await approveConfession(chatId, messageId, Number(id));
@@ -171,6 +178,7 @@ async function pollTelegramUpdates() {
 
           await answerCallback(cbId, 'Rejected ❌');
         } else if (data.startsWith('edit_')) {
+          console.log("❌ REJECT BUTTON CLICKED");
           const id = data.replace('edit_', '');
 
           await startEditMode(chatId, messageId, Number(id));
