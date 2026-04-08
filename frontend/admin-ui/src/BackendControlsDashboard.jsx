@@ -13,7 +13,7 @@ import { useEffect, useMemo, useState } from 'react';
 import SubmitConfession from './submitConfession';
 
 const API_BASE = import.meta.env.DEV
-  ? 'http://localhost:3000'
+  ? 'http://localhost:3001'
   : 'https://m-backend-4t8v.onrender.com';
 
 function ConfessionNoControl() {
