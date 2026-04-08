@@ -50,10 +50,10 @@ async function shouldPostNow() {
     }),
   );
 
-  // if (now.getMinutes() % 2 === 0) {
-  //   return true;
-  // }
-  // return false;
+  if (now.getMinutes() % 2 === 0) {
+    return true;
+  }
+  return false;
 
   const currentHour = now.getHours();
   const currentMinute = now.getMinutes();
