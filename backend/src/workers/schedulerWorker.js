@@ -82,7 +82,7 @@ async function shouldPostNow() {
     postHours = [10];
   */
 
-  // postHours = [10];
+  postHours = [10];
 
   if (!postHours.includes(currentHour)) {
     console.log('⏳ Current hour not matched');
