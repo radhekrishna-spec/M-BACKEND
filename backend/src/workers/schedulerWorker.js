@@ -6,8 +6,9 @@ const { postToInstagram } = require('../modules/social/instagramService');
 
 const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
-// Dynamic timing based on approved queue count
-
+// =========================
+// DYNAMIC POST HOURS
+// =========================
 function getPostTimes(queueCount) {
   let baseHours = [];
 
@@ -22,38 +23,40 @@ function getPostTimes(queueCount) {
   return baseHours;
 }
 
+// =========================
+// RANDOM MINUTE PER HOUR
+// =========================
 function getRandomMinuteForHour(dateKey, hour) {
   const key = `RANDOM_MINUTE_${dateKey}_${hour}`;
 
   let minute = store.get(key);
 
   if (minute === undefined || minute === null) {
-    minute = Math.floor(Math.random() * 59) // 1 to 12
+    minute = Math.floor(Math.random() * 60);
     store.set(key, minute);
   }
 
   return minute;
 }
 
-// count approved queue
+// =========================
+// QUEUE COUNT
+// =========================
 async function getApprovedQueueCount() {
   return await Confession.countDocuments({
     status: 'APPROVED',
   });
 }
 
-// new time based posting logic
+// =========================
+// MAIN TIME CHECK
+// =========================
 async function shouldPostNow() {
   const now = new Date(
     new Date().toLocaleString('en-US', {
       timeZone: 'Asia/Kolkata',
     }),
   );
-
-  // if (now.getMinutes() % 20 === 0) {
-  //   return true;
-  // }
-  // return false;
 
   const currentHour = now.getHours();
   const currentMinute = now.getMinutes();
@@ -63,71 +66,93 @@ async function shouldPostNow() {
 
   const queueCount = await getApprovedQueueCount();
 
-  if (!queueCount) return false;
+  if (!queueCount) {
+    console.log('❌ No approved queue');
+    return false;
+  }
 
-  const postHours = getPostTimes(queueCount);
+  let postHours = getPostTimes(queueCount);
+
+  /*
+    🔥 TESTING MODE
+    Agar abhi 10 baj chuke hain aur tu chahta hai
+    10–11 ke bich post ho jaye
+    toh is line ko uncomment kar:
+
+    postHours = [10];
+  */
+
+  // postHours = [10];
 
   if (!postHours.includes(currentHour)) {
+    console.log('⏳ Current hour not matched');
     return false;
   }
 
   const todayKey = now.toDateString();
 
-  const randomMinute = getRandomMinuteForHour(todayKey, currentHour);
+  const randomMinute = getRandomMinuteForHour(
+    todayKey,
+    currentHour,
+  );
 
-  // allow only 2 min window
-    if (currentMinute < randomMinute) {
+  /*
+    🔥 SAFE WINDOW
+    random minute ke baad 10 min tak post allowed
+  */
+  const allowedWindow = 10;
+
+  if (
+    currentMinute < randomMinute ||
+    currentMinute > randomMinute + allowedWindow
+  ) {
+    console.log(
+      `⏳ Waiting slot ${currentHour}:${randomMinute}`
+    );
     return false;
   }
 
   const slotKey = `LAST_POST_SLOT_${todayKey}_${currentHour}`;
 
   if (store.get(slotKey)) {
+    console.log('⚠️ Already posted this hour');
     return false;
   }
 
   store.set(slotKey, '1');
 
-  console.log(`✅ Slot matched: ${currentHour}:${randomMinute}`);
+  console.log(
+    `✅ Slot matched: ${currentHour}:${randomMinute}`
+  );
 
   return true;
 }
 
-//   if (currentMinute % 2 !== 0) {
-//     return false;
-//   }
-
-//   return true;
-// }
-
-// FIFO approved confession
+// =========================
+// FIFO APPROVED CONFESSION
+// =========================
 async function getNextApprovedConfession() {
   return await Confession.findOne({
     status: 'APPROVED',
   }).sort({ confessionNo: 1 });
 }
 
-// post flow
+// =========================
+// POST FLOW
+// =========================
 async function processApprovedQueue() {
-  //console.log('🧾 STORE DATA:', store.getAll());
-
   const confession = await getNextApprovedConfession();
 
-  //console.log('🧾 NEXT APPROVED CONFESSION:', confession);
-
   if (!confession) {
-    //console.log('❌ no approved confession');
     return {
       success: false,
       message: 'No approved confession',
     };
   }
+
   const confessionNo = confession.confessionNo;
   const images = confession.images || [];
   const caption = confession.caption || '';
-
-  //console.log('🖼 images:', images);
-  //console.log('📝 caption:', caption);
 
   if (!confessionNo) {
     return {
@@ -157,33 +182,36 @@ async function processApprovedQueue() {
 
   try {
     store.set(`posting_${confessionNo}`, '1');
-    await Confession.updateOne({ confessionNo }, { status: 'POSTING' });
-    // console.log('📤 INSTAGRAM IMAGE URL:', images[0]);
-    // console.log('📝 INSTAGRAM CAPTION:', caption);
+
+    await Confession.updateOne(
+      { confessionNo },
+      { status: 'POSTING' },
+    );
 
     const axios = require('axios');
 
     try {
-      const testRes = await axios.get(images[0], {
+      await axios.get(images[0], {
         responseType: 'arraybuffer',
         timeout: 15000,
         maxRedirects: 5,
       });
-
-      // console.log('🧪 IMAGE FETCH STATUS:', testRes.status);
-      // console.log('🧪 IMAGE CONTENT TYPE:', testRes.headers['content-type']);
-      // console.log('🧪 IMAGE SIZE:', testRes.data.length);
     } catch (e) {
-      console.error('❌ IMAGE URL TEST FAIL:', e.response?.data || e.message);
+      console.error(
+        '❌ IMAGE URL TEST FAIL:',
+        e.response?.data || e.message
+      );
     }
 
     await postToInstagram(images, caption);
 
-    const fileIds = store.get(`fileIds_${confessionNo}`) || [];
+    const fileIds =
+      store.get(`fileIds_${confessionNo}`) || [];
 
     for (const fileId of fileIds) {
       await moveFileToFolder(fileId, 'posted');
     }
+
     await Confession.updateOne(
       { confessionNo },
       {
@@ -194,13 +222,22 @@ async function processApprovedQueue() {
 
     store.delete(`images_${confessionNo}`);
     store.delete(`caption_${confessionNo}`);
-    store.set(`posted_time_${confessionNo}`, Date.now());
+    store.set(
+      `posted_time_${confessionNo}`,
+      Date.now()
+    );
 
-    const tgMsgId = store.get(`telegram_msg_${confessionNo}`);
+    const tgMsgId = store.get(
+      `telegram_msg_${confessionNo}`
+    );
 
-    await updateTelegramButtons(CHAT_ID, tgMsgId, 'posted', confessionNo);
+    await updateTelegramButtons(
+      CHAT_ID,
+      tgMsgId,
+      'posted',
+      confessionNo
+    );
 
-    //console.log(`🚀 Posted confession #${confessionNo}`);
     return {
       success: true,
       confessionNo,
@@ -224,28 +261,39 @@ async function processApprovedQueue() {
     return {
       success: false,
       confessionNo,
-      message: error.response?.data || error.message,
+      message:
+        error.response?.data || error.message,
     };
   } finally {
     store.delete(`posting_${confessionNo}`);
   }
 }
 
-// worker
+// =========================
+// WORKER
+// =========================
 async function startSchedulerWorker() {
-  //console.log('Scheduler worker started...');
+  console.log('🚀 Scheduler worker started');
 
   setInterval(async () => {
     console.log('🔁 Scheduler interval tick');
 
     try {
       const next = await getNextApprovedConfession();
-      console.log('📦 NEXT APPROVED:', next?.confessionNo);
+
+      console.log(
+        '📦 NEXT APPROVED:',
+        next?.confessionNo
+      );
+
       if (next && (await shouldPostNow())) {
         await processApprovedQueue();
       }
     } catch (error) {
-      console.error('SCHEDULER ERROR:', error.message);
+      console.error(
+        'SCHEDULER ERROR:',
+        error.message
+      );
     }
   }, 60000);
 }
