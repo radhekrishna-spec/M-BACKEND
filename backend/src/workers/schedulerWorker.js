@@ -286,7 +286,7 @@ async function startSchedulerWorker() {
         next?.confessionNo
       );
 
-      if (next && (await shouldPostNow())) {
+      if (next) {
         await processApprovedQueue();
       }
     } catch (error) {
@@ -295,7 +295,7 @@ async function startSchedulerWorker() {
         error.message
       );
     }
-  }, 60000);
+  }, 300000);
 }
 
 module.exports = {
